@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: parktrack_postgres
+    environment:
+      POSTGRES_DB: parktrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rafa123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - parktrack_network
+
+  # Aplicação ParkTrack
+  app:
+    build: .
+    container_name: parktrack_app
+    environment:
+      DATABASE_URL: "postgresql://postgres:rafa123@postgres:5432/parktrack_db?schema=public"
+      PORT: 3333
+    ports:
+      - "3333:3333"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - parktrack_network
+    command: >
+      sh -c "
+        echo 'Aguardando PostgreSQL...' &&
+        sleep 10 &&
+        npx prisma migrate deploy &&
+        npm start
+      "
+
+  # Aplicação em modo desenvolvimento (opcional)
+  app-dev:
+    build: .
+    container_name: parktrack_app_dev
+    environment:
+      DATABASE_URL: "postgresql://postgres:rafa123@postgres:5432/parktrack_db?schema=public"
+      PORT: 3333
+    ports:
+      - "3334:3333"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - parktrack_network
+    command: >
+      sh -c "
+        echo 'Aguardando PostgreSQL...' &&
+        sleep 10 &&
+        npx prisma migrate deploy &&
+        npm run dev
+      "
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+
+networks:
+  parktrack_network:
+    driver: bridge
