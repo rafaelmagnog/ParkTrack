@@ -11,7 +11,7 @@
 
 ## 🧭 **Sobre o Projeto**
 
-O **ParkTrack** é uma aplicação backend moderna que simplifica o gerenciamento de estacionamentos, possibilitando o **cadastro, controle e monitoramento** de veículos e clientes em tempo real.
+O **ParkTrack** é uma aplicação fullstack moderna que simplifica o gerenciamento de estacionamentos, possibilitando o **cadastro, controle e monitoramento** de veículos e clientes em tempo real.
 
 Projetado com uma arquitetura limpa, modular e pronta para produção, o ParkTrack oferece:
 
@@ -226,6 +226,6 @@ docker exec -it parktrack_postgres psql -U postgres -d parktrack_db
 
 - Implementar autenticação JWT para controle de acesso.
 - Adicionar sistema de tarifas com base no tempo de permanência.
-- Integração com front-end.
+- Implementação do front-end.
 
 ---
