@@ -1,14 +1,26 @@
 import { Router } from "express";
 import veiculoController from "../controllers/veiculoController";
+import { validateBody, validateParams } from "../middlewares/validation";
+import {
+  createVeiculoSchema,
+  updateVeiculoSchema,
+  idParamSchema,
+} from "../schemas/veiculoSchema";
 
 const router = Router();
 
 /**
- * @openapi
+ * @swagger
+ * tags:
+ *   name: Veiculos
+ *   description: Gestão de veículos
+ */
+
+/**
+ * @swagger
  * /veiculos:
  *   get:
- *     tags:
- *       - Veiculos
+ *     tags: [Veiculos]
  *     summary: Lista todos os veículos
  *     responses:
  *       200:
@@ -19,9 +31,10 @@ const router = Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Veiculo'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   post:
- *     tags:
- *       - Veiculos
+ *     tags: [Veiculos]
  *     summary: Cria um veículo
  *     requestBody:
  *       required: true
@@ -36,23 +49,22 @@ const router = Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Veiculo'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  */
 router.get("/", veiculoController.getAll);
-router.post("/", veiculoController.create);
+router.post("/", validateBody(createVeiculoSchema), veiculoController.create);
 
 /**
- * @openapi
+ * @swagger
  * /veiculos/{id}:
  *   get:
- *     tags:
- *       - Veiculos
+ *     tags: [Veiculos]
  *     summary: Obtém um veículo por id
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     responses:
  *       200:
  *         description: Veículo encontrado
@@ -61,17 +73,14 @@ router.post("/", veiculoController.create);
  *             schema:
  *               $ref: '#/components/schemas/Veiculo'
  *       404:
- *         description: Veículo não encontrado
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   put:
- *     tags:
- *       - Veiculos
+ *     tags: [Veiculos]
  *     summary: Atualiza veículo
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     requestBody:
  *       required: true
  *       content:
@@ -85,22 +94,32 @@ router.post("/", veiculoController.create);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Veiculo'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   delete:
- *     tags:
- *       - Veiculos
+ *     tags: [Veiculos]
  *     summary: Remove veículo
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     responses:
  *       204:
  *         description: Veículo removido
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  */
-router.get("/:id", veiculoController.getOne);
-router.put("/:id", veiculoController.update);
-router.delete("/:id", veiculoController.remove);
+router.get("/:id", validateParams(idParamSchema), veiculoController.getOne);
+router.put(
+  "/:id",
+  validateParams(idParamSchema),
+  validateBody(updateVeiculoSchema),
+  veiculoController.update
+);
+router.delete("/:id", validateParams(idParamSchema), veiculoController.remove);
 
 export default router;

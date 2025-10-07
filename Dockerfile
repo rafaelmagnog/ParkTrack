@@ -1,26 +1,27 @@
+# Utiliza imagem base leve do Node
 FROM node:18-alpine
 
-# Definir diretório de trabalho
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copia apenas os arquivos de dependências primeiro (melhora cache)
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Instalar dependências
+# Instala dependências
 RUN npm install
 
-# Copiar código fonte
+# Copia o restante do código
 COPY . .
 
-# Gerar cliente Prisma
+# Gera cliente Prisma (necessário antes de buildar)
 RUN npx prisma generate
 
-# Compilar TypeScript
+# Compila o TypeScript para JavaScript (modo produção)
 RUN npm run build
 
-# Expor porta
+# Expõe a porta padrão da aplicação
 EXPOSE 3333
 
-# Comando para iniciar a aplicação
+# Comando padrão de inicialização
 CMD ["npm", "start"]

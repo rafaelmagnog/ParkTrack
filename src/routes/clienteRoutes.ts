@@ -1,14 +1,26 @@
 import { Router } from "express";
 import clienteController from "../controllers/clienteController";
+import { validateBody, validateParams } from "../middlewares/validation";
+import {
+  createClienteSchema,
+  updateClienteSchema,
+  idParamSchema,
+} from "../schemas/clienteSchema";
 
 const router = Router();
 
 /**
- * @openapi
+ * @swagger
+ * tags:
+ *   name: Clientes
+ *   description: Gerenciamento de clientes
+ */
+
+/**
+ * @swagger
  * /clientes:
  *   get:
- *     tags:
- *       - Clientes
+ *     tags: [Clientes]
  *     summary: Lista todos os clientes
  *     responses:
  *       200:
@@ -19,9 +31,10 @@ const router = Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Cliente'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   post:
- *     tags:
- *       - Clientes
+ *     tags: [Clientes]
  *     summary: Cria um novo cliente
  *     requestBody:
  *       required: true
@@ -31,28 +44,27 @@ const router = Router();
  *             $ref: '#/components/schemas/ClienteCreate'
  *     responses:
  *       201:
- *         description: Cliente criado
+ *         description: Cliente criado com sucesso
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Cliente'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       409:
+ *         $ref: '#/components/responses/Conflict'
  */
 router.get("/", clienteController.getAll);
-router.post("/", clienteController.create);
+router.post("/", validateBody(createClienteSchema), clienteController.create);
 
 /**
- * @openapi
+ * @swagger
  * /clientes/{id}:
  *   get:
- *     tags:
- *       - Clientes
- *     summary: Obtém um cliente por id
+ *     tags: [Clientes]
+ *     summary: Retorna um cliente pelo ID
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     responses:
  *       200:
  *         description: Cliente encontrado
@@ -61,46 +73,53 @@ router.post("/", clienteController.create);
  *             schema:
  *               $ref: '#/components/schemas/Cliente'
  *       404:
- *         description: Cliente não encontrado
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   put:
- *     tags:
- *       - Clientes
- *     summary: Atualiza um cliente
+ *     tags: [Clientes]
+ *     summary: Atualiza um cliente existente
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ClienteCreate'
+ *             $ref: '#/components/schemas/ClienteUpdate'
  *     responses:
  *       200:
- *         description: Cliente atualizado
+ *         description: Cliente atualizado com sucesso
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Cliente'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  *   delete:
- *     tags:
- *       - Clientes
+ *     tags: [Clientes]
  *     summary: Remove um cliente
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ *       - $ref: '#/components/parameters/IdParam'
  *     responses:
  *       204:
  *         description: Cliente removido
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
  */
-router.get("/:id", clienteController.getOne);
-router.put("/:id", clienteController.update);
-router.delete("/:id", clienteController.remove);
+router.get("/:id", validateParams(idParamSchema), clienteController.getOne);
+router.put(
+  "/:id",
+  validateParams(idParamSchema),
+  validateBody(updateClienteSchema),
+  clienteController.update
+);
+router.delete("/:id", validateParams(idParamSchema), clienteController.remove);
 
 export default router;

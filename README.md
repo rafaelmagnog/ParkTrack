@@ -1,227 +1,193 @@
-# 🚗 ParkTrack
+# 🚗 **ParkTrack — Sistema de Gerenciamento de Estacionamentos**
 
 [![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-orange)](README.md)
 [![Idioma: PT-BR](https://img.shields.io/badge/Linguagem-Português-green)](README.md)
+[![Linguagem](https://img.shields.io/badge/Stack-Node.js%20|%20TypeScript%20|%20PostgreSQL-blue)](README.md)
+[![Documentação](https://img.shields.io/badge/API-Swagger-lightgrey)](http://localhost:3333/api-docs)
 
-**Gerencie, monitore e otimize o uso de estacionamentos com eficiência e tecnologia.**
-
----
-
-## 🧭 **Descrição do Projeto**
-
-O **ParkTrack** é uma aplicação moderna desenvolvida para facilitar o **gerenciamento de estacionamentos** — seja em instituições, empresas ou locais públicos.  
-Através de um painel inteligente e APIs bem estruturadas, o sistema permite o **cadastro, controle e monitoramento** de veículos, vagas e usuários em tempo real.
-
-O objetivo é proporcionar **organização, segurança e praticidade** para administradores e motoristas.
+> Uma API completa e escalável para gestão inteligente de estacionamentos, construída com Node.js, TypeScript, Prisma, PostgreSQL e Zod.
 
 ---
 
-## ⚙️ **Principais Funcionalidades**
+## 🧭 **Sobre o Projeto**
 
-### 🚙 **Para Usuários (Motoristas)**
-- Cadastro e autenticação segura
-- Visualização de vagas disponíveis
-- Solicitação de entrada e saída
-- Histórico de estacionamentos
+O **ParkTrack** é uma aplicação backend moderna que simplifica o gerenciamento de estacionamentos, possibilitando o **cadastro, controle e monitoramento** de veículos e clientes em tempo real.
 
-### 🧑‍💼 **Para Administradores**
-- Painel de controle com estatísticas em tempo real
-- CRUD completo de usuários, veículos e vagas
-- Monitoramento de ocupação do estacionamento
-- Geração de relatórios e alertas automáticos
+Projetado com uma arquitetura limpa, modular e pronta para produção, o ParkTrack oferece:
 
-### 🧠 **Extras**
-- Documentação completa da API via **Swagger**
-- Validação de dados com **Zod**
-- Banco de dados relacional robusto com **PostgreSQL**
-- Estrutura escalável e modular com **Prisma ORM**
+- APIs RESTful bem definidas;
+- Documentação interativa com Swagger;
+- Validação robusta de dados via Zod;
+- Persistência confiável com Prisma e PostgreSQL.
 
 ---
 
-## 🛠️ **Tecnologias Utilizadas**
+## ⚙️ **Principais Recursos**
 
-- **Node.js** + **TypeScript**
-- **Express.js** — Framework backend
-- **Prisma ORM** — Mapeamento de dados
-- **PostgreSQL** — Banco de dados relacional
-- **Zod** — Validação de esquemas
-- **Swagger UI** — Documentação interativa
-- **Docker** — Containerização de ambiente
-- **Git** — Controle de versão
+### 👥 **Clientes**
 
----
-
-## 🚀 **Como Rodar a Aplicação**
-
-### 📋 **Pré-requisitos**
-Antes de começar, instale:
-
-- [Node.js 18+](https://nodejs.org/)
-- [npm](https://www.npmjs.com/)
-- [Docker](https://www.docker.com/)
-- [Git](https://git-scm.com/)
-
----
-
-### 1️⃣ **Clone o Repositório**
-
-```bash
-git clone https://github.com/rafaelmagnog/ParkTrack.git
-cd ParkTrack
-````
-
----
-
-### 2️⃣ **Instale as Dependências**
-
-```bash
-npm install
-```
-
----
-
-### 3️⃣ **Configure o Banco de Dados**
-
-#### 🔹 Inicie o container PostgreSQL com Docker:
-
-```bash
-docker-compose up -d
-```
-
-O container será criado com as seguintes configurações padrão:
-
-| Configuração | Valor        |
-| ------------ | ------------ |
-| **Host**     | localhost    |
-| **Porta**    | 5433         |
-| **Usuário**  | admin        |
-| **Senha**    | admin        |
-| **Banco**    | parktrack_db |
-
----
-
-### 4️⃣ **Configure o arquivo `.env`**
-
-Crie o arquivo `.env` na raiz do projeto e adicione:
-
-```env
-DATABASE_URL="postgresql://admin:admin@localhost:5433/parktrack_db"
-PORT=3333
-```
-
----
-
-### 5️⃣ **Execute as Migrações e Gere o Prisma Client**
-
-```bash
-npx prisma generate
-npx prisma migrate dev --name init
-```
-
----
-
-### 6️⃣ **Inicie o Servidor**
-
-```bash
-npm run dev
-```
-
-A API estará disponível em:
-👉 **[http://localhost:3333](http://localhost:3333)**
-
-E a documentação Swagger em:
-👉 **[http://localhost:3333/api-docs](http://localhost:3333/api-docs)**
-
----
-
-## 📚 **Endpoints Principais**
+- Cadastro, atualização, exclusão e listagem.
+- Validação de dados (CPF, nome e telefone).
 
 ### 🚗 **Veículos**
 
-* `POST /veiculos` — Cadastrar veículo
-* `GET /veiculos` — Listar veículos
-* `PUT /veiculos/:id` — Atualizar dados
-* `DELETE /veiculos/:id` — Remover veículo
+- Associados a um cliente.
+- CRUD completo com validações de placa, modelo e cor.
+- Relação direta com o cliente via chave estrangeira (`clienteId`).
 
-### 🅿️ **Vagas**
+### 🅿️ **Estacionamentos**
 
-* `POST /vagas` — Criar vaga
-* `GET /vagas` — Listar vagas disponíveis
-* `PUT /vagas/:id` — Atualizar status (ocupada/livre)
-* `DELETE /vagas/:id` — Deletar vaga
+- Registro de entrada e saída de veículos.
+- Cálculo de valor e tempo de permanência.
+- Endpoint detalhado com `include` de veículo e cliente.
 
-### 👥 **Usuários**
+---
 
-* `POST /usuarios` — Registrar novo usuário
-* `GET /usuarios` — Listar todos os usuários
-* `PUT /usuarios/:id` — Atualizar dados
-* `DELETE /usuarios/:id` — Excluir conta
+## 🧠 **Tecnologias Utilizadas**
+
+| Categoria             | Tecnologias             |
+| --------------------- | ----------------------- |
+| **Linguagem**         | TypeScript              |
+| **Framework Backend** | Express.js              |
+| **ORM**               | Prisma                  |
+| **Banco de Dados**    | PostgreSQL              |
+| **Validação**         | Zod                     |
+| **Documentação**      | Swagger UI              |
+| **Ambiente**          | Docker & Docker Compose |
+| **Execução**          | ts-node, nodemon        |
 
 ---
 
 ## 🧩 **Estrutura do Projeto**
 
 ```plaintext
-📁 ParkTrack
-├── src
-│   ├── controllers/        # Camada de entrada (HTTP)
-│   ├── routes/             # Definição das rotas
-│   ├── services/           # Regras de negócio (ex: veiculoService.ts)
-│   ├── schemas/            # Schemas Zod (validações)
-│   ├── db/                 # Inicialização do Prisma Client
-│   ├── swagger/            # Configurações gerais do Swagger
-│   └── index.ts            # Main
+📦 ParkTrack
+├── src/
+│   ├── controllers/        # Controladores das rotas (regras de entrada)
+│   ├── routes/             # Definições das rotas Express
+│   ├── services/           # Camada de lógica de negócios
+│   ├── schemas/            # Validações com Zod
+│   ├── db/                 # Conexão e inicialização do Prisma Client
+│   ├── swagger/            # Configuração do Swagger
+│   ├── middlewares/        # Middlewares de validação e erros
+│   └── index.ts            # Ponto de entrada da aplicação
 │
-├── prisma
-│   ├── schema.prisma       # Modelo de dados
-│   └── migrations/         # Histórico de migrações
+├── prisma/
+│   ├── schema.prisma       # Definição das tabelas e relações
+│   └── migrations/         # Migrações geradas pelo Prisma
 │
+├── .env (local - não versionado)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
 ├── package.json
 ├── tsconfig.json
-├── README.md
-└── .env (local - não versionado)
+└── README.md
 ```
-
-## 🧠 **Validações (Zod)**
-
-O ParkTrack implementa validações robustas para garantir consistência dos dados:
-
-* **Placa**: formato válido (`AAA-1234` ou `AAA1B23`)
-* **E-mail**: formato obrigatório e único
-* **Telefone**: 10 a 15 caracteres
-* **Campos obrigatórios**: nome, vaga, status e horário de entrada
 
 ---
 
-## 🐳 **Docker Commands Úteis**
+## 🚀 **Como Executar o Projeto**
+
+### 🧱 **1. Clone o repositório**
 
 ```bash
-docker-compose up -d        # Inicia o container do PostgreSQL
-docker-compose down         # Encerra e remove containers
-docker ps                   # Lista containers em execução
-docker logs parktrack-db    # Mostra logs do banco
+git clone https://github.com/rafaelmagnog/ParkTrack.git
+cd ParkTrack
+```
+
+### ⚙️ **2. Crie o arquivo `.env`**
+
+```env
+DATABASE_URL="postgresql://SeuUser:SuaSenha@localhost:5432/parktrack_db?schema=public"
+PORT=3333
+```
+
+### 🐳 **3. Suba os containers com Docker**
+
+```bash
+docker-compose up -d
+```
+
+### 🔧 **4. Execute migrações e gere o Prisma Client**
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
+
+### ▶️ **5. Inicie a aplicação**
+
+Modo produção:
+
+```bash
+npm start
+```
+
+Modo desenvolvimento:
+
+```bash
+docker compose --profile dev up
 ```
 
 ---
 
-## 🧪 **Testando a API**
+## 📚 **Documentação da API**
 
-Você pode testar diretamente pelo **Swagger UI** ou com ferramentas como **Insomnia** ou **Postman**.
+Após rodar o projeto, acesse:
+👉 **Swagger UI:** [http://localhost:3333/api-docs](http://localhost:3333/api-docs)
 
-Exemplo de requisição para criar um veículo:
+Lá você encontrará todos os endpoints documentados, com exemplos de requisições e respostas.
+
+---
+
+## 🧩 **Endpoints Principais**
+
+| Resource            | Método   | Endpoint                     | Descrição                            |
+| ------------------- | -------- | ---------------------------- | ------------------------------------ |
+| **Clientes**        | `GET`    | `/clientes`                  | Lista todos os clientes              |
+|                     | `GET`    | `/clientes/:id`              | Obtém um cliente específico          |
+|                     | `POST`   | `/clientes`                  | Cadastra um novo cliente             |
+|                     | `PUT`    | `/clientes/:id`              | Atualiza um cliente existente        |
+|                     | `DELETE` | `/clientes/:id`              | Remove um cliente                    |
+| **Veículos**        | `GET`    | `/veiculos`                  | Lista todos os veículos              |
+|                     | `GET`    | `/veiculos/:id`              | Detalha um veículo                   |
+|                     | `POST`   | `/veiculos`                  | Cadastra um novo veículo             |
+|                     | `PUT`    | `/veiculos/:id`              | Atualiza informações                 |
+|                     | `DELETE` | `/veiculos/:id`              | Exclui um veículo                    |
+| **Estacionamentos** | `GET`    | `/estacionamentos`           | Lista registros                      |
+|                     | `GET`    | `/estacionamentos/detalhado` | Lista com dados de cliente e veículo |
+|                     | `POST`   | `/estacionamentos`           | Registra entrada                     |
+|                     | `PUT`    | `/estacionamentos/:id`       | Atualiza saída ou valor              |
+|                     | `DELETE` | `/estacionamentos/:id`       | Remove registro                      |
+
+---
+
+## 💬 **Exemplo de Requisição**
+
+### 🔹 Criar um novo veículo
 
 ```bash
 curl -X POST http://localhost:3333/veiculos \
   -H "Content-Type: application/json" \
   -d '{
-    "placa": "ABC-1234",
+    "placa": "ABC1234",
     "modelo": "Fiat Argo",
     "cor": "Prata",
-    "usuarioId": 1
+    "clienteId": 1
   }'
+```
+
+**Resposta esperada (201 Created):**
+
+```json
+{
+  "id": 5,
+  "placa": "ABC1234",
+  "modelo": "Fiat Argo",
+  "cor": "Prata",
+  "clienteId": 1
+}
 ```
 
 ---
@@ -229,18 +195,37 @@ curl -X POST http://localhost:3333/veiculos \
 ## 🧰 **Scripts Disponíveis**
 
 ```bash
-npm run dev             # Executa o servidor em modo desenvolvimento
-npm run build           # Compila para produção
-npm start               # Inicia a versão compilada
-npm run prisma:studio   # Abre o Prisma Studio
+npm run dev             # Executa o servidor com nodemon
+npm run build           # Compila TypeScript
+npm start               # Roda versão compilada
+npx prisma studio       # Abre o Prisma Studio (GUI do banco)
+```
+
+---
+
+## 🧪 **Testes e Validações**
+
+Todas as requisições são validadas com **Zod**, garantindo segurança e consistência dos dados.
+Erros são padronizados via middleware central, retornando respostas JSON estruturadas e legíveis.
+
+---
+
+## 🐳 **Docker — Comandos Úteis**
+
+```bash
+docker-compose up -d        # Inicia containers (PostgreSQL + API)
+docker-compose down         # Encerra containers
+docker ps                   # Lista containers em execução
+docker logs parktrack_app   # Exibe logs da aplicação
+docker exec -it parktrack_postgres psql -U postgres -d parktrack_db
 ```
 
 ---
 
 ## 💡 **Melhorias Futuras**
 
-* Sistema de **notificações em tempo real**
-* **Controle de acesso por níveis** (admin, segurança, motorista)
-* Relatórios automáticos de uso e tempo médio de ocupação
+- Implementar autenticação JWT para controle de acesso.
+- Adicionar sistema de tarifas com base no tempo de permanência.
+- Integração com front-end.
 
 ---

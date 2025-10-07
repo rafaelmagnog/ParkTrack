@@ -1,60 +1,60 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import clienteService from "../services/clienteService";
-import { clienteSchema, clienteUpdateSchema } from "../schemas/clienteSchema";
+import prisma from "../db/prisma";
 
 const clienteController = {
-  async getAll(req: Request, res: Response) {
-    const list = await clienteService.getAll();
-    return res.json(list);
-  },
-
-  async getOne(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    if (!id) return res.status(400).json({ message: "ID inválido" });
-    const cliente = await clienteService.getById(id);
-    if (!cliente)
-      return res.status(404).json({ message: "Cliente não encontrado" });
-    return res.json(cliente);
-  },
-
-  async create(req: Request, res: Response) {
-    const parsed = clienteSchema.safeParse(req.body);
-    if (!parsed.success)
-      return res.status(400).json({ errors: parsed.error.format() });
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const novo = await clienteService.create(parsed.data);
-      return res.status(201).json(novo);
-    } catch (err: any) {
-      return res
-        .status(409)
-        .json({ message: err.message || "Erro ao criar cliente" });
+      const clientes = await clienteService.getAll();
+      res.json(clientes);
+    } catch (err) {
+      next(err);
     }
   },
 
-  async update(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const parsed = clienteUpdateSchema.safeParse(req.body);
-    if (!parsed.success)
-      return res.status(400).json({ errors: parsed.error.format() });
+  async getOne(req: Request, res: Response, next: NextFunction) {
     try {
-      const updated = await clienteService.update(id, parsed.data);
-      return res.json(updated);
-    } catch (err: any) {
-      return res
-        .status(404)
-        .json({ message: err.message || "Cliente não encontrado" });
+      const id = Number(req.params.id);
+      const cliente = await clienteService.getById(id);
+      if (!cliente)
+        return res.status(404).json({ message: "Cliente não encontrado" });
+      res.json(cliente);
+    } catch (err) {
+      next(err);
     }
   },
 
-  async remove(req: Request, res: Response) {
-    const id = Number(req.params.id);
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
+      const existe = await prisma.cliente.findUnique({
+        where: { cpf: req.body.cpf },
+      });
+      if (existe) return res.status(409).json({ message: "CPF já cadastrado" });
+
+      const novo = await clienteService.create(req.body);
+      res.status(201).json(novo);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
+      const atualizado = await clienteService.update(id, req.body);
+      res.json(atualizado);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async remove(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
       await clienteService.remove(id);
-      return res.status(204).send();
-    } catch (err: any) {
-      return res
-        .status(404)
-        .json({ message: err.message || "Cliente não encontrado" });
+      res.status(204).send();
+    } catch (err) {
+      next(err);
     }
   },
 };

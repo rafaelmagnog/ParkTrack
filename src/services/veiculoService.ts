@@ -3,11 +3,16 @@ import { Veiculo } from "@prisma/client";
 
 const veiculoService = {
   async getAll(): Promise<Veiculo[]> {
-    return prisma.veiculo.findMany();
+    return prisma.veiculo.findMany({
+      include: { cliente: true },
+    });
   },
 
   async getById(id: number): Promise<Veiculo | null> {
-    return prisma.veiculo.findUnique({ where: { id } });
+    return prisma.veiculo.findUnique({
+      where: { id },
+      include: { cliente: true },
+    });
   },
 
   async create(data: {
