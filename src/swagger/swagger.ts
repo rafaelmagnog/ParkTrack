@@ -41,6 +41,16 @@ export function setupSwagger(app: Express) {
               cpf: { type: "string", example: "12345678901" },
             },
           },
+          SuccessMessage: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                example: "Recurso removido com sucesso",
+              },
+              id: { type: "integer", example: 1 },
+            },
+          },
           ClienteCreate: {
             type: "object",
             required: ["nome", "telefone", "cpf"],

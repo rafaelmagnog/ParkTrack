@@ -6,6 +6,11 @@ const clienteController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const clientes = await clienteService.getAll();
+      if (!clientes.length) {
+        return res
+          .status(404)
+          .json({ message: "Nenhum cliente cadastrado ainda" });
+      }
       res.json(clientes);
     } catch (err) {
       next(err);
@@ -52,7 +57,7 @@ const clienteController = {
     try {
       const id = Number(req.params.id);
       await clienteService.remove(id);
-      res.status(204).send();
+      res.status(200).json({ message: "Cliente removido com sucesso", id });
     } catch (err) {
       next(err);
     }

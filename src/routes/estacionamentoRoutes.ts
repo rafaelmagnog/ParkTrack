@@ -123,8 +123,12 @@ const router = Router();
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
  *     responses:
- *       204:
- *         description: Estacionamento removido
+ *       200:
+ *         description: Estacionamento removido com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       404:
  *         $ref: '#/components/responses/NotFound'
  *       500:

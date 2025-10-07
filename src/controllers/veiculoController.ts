@@ -6,6 +6,11 @@ const veiculoController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const veiculos = await veiculoService.getAll();
+      if (!veiculos.length) {
+        return res
+          .status(404)
+          .json({ message: "Nenhum veículo cadastrado ainda" });
+      }
       res.json(veiculos);
     } catch (err) {
       next(err);
@@ -55,7 +60,7 @@ const veiculoController = {
     try {
       const id = Number(req.params.id);
       await veiculoService.remove(id);
-      res.status(204).send();
+      res.status(200).json({ message: "Veículo removido com sucesso", id });
     } catch (err) {
       next(err);
     }

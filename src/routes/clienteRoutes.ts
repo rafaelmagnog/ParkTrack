@@ -106,8 +106,12 @@ router.post("/", validateBody(createClienteSchema), clienteController.create);
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
  *     responses:
- *       204:
- *         description: Cliente removido
+ *       200:
+ *         description: Cliente removido com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       404:
  *         $ref: '#/components/responses/NotFound'
  *       500:

@@ -6,6 +6,11 @@ const estacionamentoController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const lista = await estacionamentoService.getAll();
+      if (!lista.length) {
+        return res
+          .status(404)
+          .json({ message: "Nenhum registro de estacionamento encontrado" });
+      }
       res.json(lista);
     } catch (err) {
       next(err);
@@ -15,6 +20,11 @@ const estacionamentoController = {
   async getDetailed(req: Request, res: Response, next: NextFunction) {
     try {
       const lista = await estacionamentoService.getDetailed();
+      if (!lista.length) {
+        return res.status(404).json({
+          message: "Nenhum registro detalhado de estacionamento disponível",
+        });
+      }
       res.json(lista);
     } catch (err) {
       next(err);
@@ -64,7 +74,9 @@ const estacionamentoController = {
     try {
       const id = Number(req.params.id);
       await estacionamentoService.remove(id);
-      res.status(204).send();
+      res
+        .status(200)
+        .json({ message: "Estacionamento removido com sucesso", id });
     } catch (err) {
       next(err);
     }

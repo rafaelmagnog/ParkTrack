@@ -106,8 +106,12 @@ router.post("/", validateBody(createVeiculoSchema), veiculoController.create);
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
  *     responses:
- *       204:
- *         description: Veículo removido
+ *       200:
+ *         description: Veículo removido com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       404:
  *         $ref: '#/components/responses/NotFound'
  *       500:
