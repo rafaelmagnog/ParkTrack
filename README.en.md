@@ -1,7 +1,7 @@
 # 🚗 **ParkTrack — Parking Management System**
 
 [![Status](https://img.shields.io/badge/status-In%20Development-orange)](README.md)
-[![Language: PT-BR](https://img.shields.io/badge/Linguagem-Português-green)](README.md)
+[![Language: PT-BR](https://img.shields.io/badge/Language-Portuguese-green)](README.md)
 [![Language: EN](https://img.shields.io/badge/Language-English-red)](README.en.md)
 [![Stack](https://img.shields.io/badge/Stack-Node.js%20|%20TypeScript%20|%20PostgreSQL-blue)](README.md)
 [![Documentation](https://img.shields.io/badge/API-Swagger-lightgrey)](http://localhost:3333/api-docs)
