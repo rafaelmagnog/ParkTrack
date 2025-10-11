@@ -230,6 +230,3 @@ docker exec -it parktrack_postgres psql -U postgres -d parktrack_db
 * Frontend implementation.
 
 ---
-
-```
-```
