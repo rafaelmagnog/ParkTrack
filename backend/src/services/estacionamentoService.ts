@@ -26,7 +26,10 @@ const estacionamentoService = {
   },
 
   async create(data: { veiculoId: number }): Promise<Estacionamento> {
-    return prisma.estacionamento.create({ data });
+    return prisma.estacionamento.create({
+      data,
+      include: { veiculo: true },
+    });
   },
 
   async update(
@@ -36,7 +39,11 @@ const estacionamentoService = {
     const updateData: any = {};
     if (data.horaSaida) updateData.horaSaida = new Date(data.horaSaida);
     if (data.valor !== undefined) updateData.valor = data.valor;
-    return prisma.estacionamento.update({ where: { id }, data: updateData });
+    return prisma.estacionamento.update({
+      where: { id },
+      data: updateData,
+      include: { veiculo: true },
+    });
   },
 
   async remove(id: number): Promise<void> {
