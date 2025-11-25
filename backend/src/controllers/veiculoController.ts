@@ -31,6 +31,12 @@ const veiculoController = {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      const placaExiste = await prisma.veiculo.findUnique({
+        where: { placa: req.body.placa.toUpperCase() },
+      });
+      if (placaExiste)
+        return res.status(409).json({ message: "Placa já cadastrada" });
+
       const clienteExiste = await prisma.cliente.findUnique({
         where: { id: req.body.clienteId },
       });
@@ -49,6 +55,25 @@ const veiculoController = {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
+
+      if (req.body.placa) {
+        const placaExiste = await prisma.veiculo.findFirst({
+          where: { placa: req.body.placa.toUpperCase(), NOT: { id } },
+        });
+        if (placaExiste)
+          return res.status(409).json({ message: "Placa já cadastrada" });
+      }
+
+      if (req.body.clienteId) {
+        const clienteExiste = await prisma.cliente.findUnique({
+          where: { id: req.body.clienteId },
+        });
+        if (!clienteExiste)
+          return res
+            .status(404)
+            .json({ message: "Cliente referenciado não existe" });
+      }
+
       const atualizado = await veiculoService.update(id, req.body);
       res.json(atualizado);
     } catch (err) {

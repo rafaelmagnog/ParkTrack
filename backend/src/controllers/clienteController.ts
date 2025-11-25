@@ -46,6 +46,15 @@ const clienteController = {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
+
+      if (req.body.cpf) {
+        const cpfExiste = await prisma.cliente.findFirst({
+          where: { cpf: req.body.cpf, NOT: { id } },
+        });
+        if (cpfExiste)
+          return res.status(409).json({ message: "CPF já cadastrado" });
+      }
+
       const atualizado = await clienteService.update(id, req.body);
       res.json(atualizado);
     } catch (err) {

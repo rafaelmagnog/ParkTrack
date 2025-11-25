@@ -21,7 +21,10 @@ const veiculoService = {
     cor: string;
     clienteId: number;
   }): Promise<Veiculo> {
-    return prisma.veiculo.create({ data });
+    return prisma.veiculo.create({
+      data,
+      include: { cliente: true },
+    });
   },
 
   async update(
@@ -33,7 +36,11 @@ const veiculoService = {
       clienteId: number;
     }>
   ): Promise<Veiculo> {
-    return prisma.veiculo.update({ where: { id }, data });
+    return prisma.veiculo.update({
+      where: { id },
+      data,
+      include: { cliente: true },
+    });
   },
 
   async remove(id: number): Promise<void> {
