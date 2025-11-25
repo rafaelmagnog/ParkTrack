@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+README.md
+.env
+.env.*
+*.log
+.vite
+.eslintcache
+coverage
+.DS_Store

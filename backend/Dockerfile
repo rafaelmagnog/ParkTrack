@@ -1,6 +1,9 @@
 # Utiliza imagem base leve do Node
 FROM node:18-alpine
 
+# Instala OpenSSL (necessário para Prisma)
+RUN apk add --no-cache openssl
+
 # Define o diretório de trabalho
 WORKDIR /app
 
