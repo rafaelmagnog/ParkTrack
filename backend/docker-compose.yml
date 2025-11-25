@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Banco de dados PostgreSQL
   postgres:
@@ -16,6 +14,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - parktrack_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d parktrack_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -28,13 +31,12 @@ services:
     ports:
       - "3333:3333"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - parktrack_network
     command: >
       sh -c "
-        echo 'Aguardando PostgreSQL...' &&
-        sleep 10 &&
         npx prisma migrate deploy &&
         npm start
       "
@@ -50,7 +52,8 @@ services:
     ports:
       - "3334:3333"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
@@ -58,8 +61,6 @@ services:
       - parktrack_network
     command: >
       sh -c "
-        echo 'Aguardando PostgreSQL...' &&
-        sleep 10 &&
         npx prisma migrate deploy &&
         npm run dev
       "
