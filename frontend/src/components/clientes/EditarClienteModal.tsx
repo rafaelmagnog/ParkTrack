@@ -20,6 +20,31 @@ interface EditarClienteModalProps {
   onSave: (cliente: Cliente) => void;
 }
 
+const formatarTelefoneMask = (value: string): string => {
+  const numeros = value.replace(/\D/g, "").slice(0, 11);
+  if (numeros.length <= 2) return numeros;
+  if (numeros.length <= 7)
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+  if (numeros.length <= 11) {
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(
+      7
+    )}`;
+  }
+  return value;
+};
+
+const formatarCPFMask = (value: string): string => {
+  const numeros = value.replace(/\D/g, "").slice(0, 11);
+  if (numeros.length <= 3) return numeros;
+  if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+  if (numeros.length <= 9)
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(
+    6,
+    9
+  )}-${numeros.slice(9)}`;
+};
+
 export const EditarClienteModal: React.FC<EditarClienteModalProps> = ({
   open,
   cliente,
@@ -38,8 +63,8 @@ export const EditarClienteModal: React.FC<EditarClienteModalProps> = ({
     if (cliente) {
       setFormData({
         nome: cliente.nome,
-        telefone: cliente.telefone,
-        cpf: cliente.cpf,
+        telefone: formatarTelefoneMask(cliente.telefone),
+        cpf: formatarCPFMask(cliente.cpf),
       });
       setErrors({});
     }
@@ -48,7 +73,15 @@ export const EditarClienteModal: React.FC<EditarClienteModalProps> = ({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      let formattedValue = value;
+
+      if (name === "telefone") {
+        formattedValue = formatarTelefoneMask(value);
+      } else if (name === "cpf") {
+        formattedValue = formatarCPFMask(value);
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: formattedValue }));
       setErrors((prev) => ({ ...prev, [name]: "" }));
     },
     []
@@ -120,6 +153,8 @@ export const EditarClienteModal: React.FC<EditarClienteModalProps> = ({
             error={!!errors.telefone}
             helperText={errors.telefone}
             disabled={salvando}
+            placeholder="(00) 00000-0000"
+            inputProps={{ maxLength: 15 }}
           />
           <TextField
             label="CPF"
@@ -131,7 +166,8 @@ export const EditarClienteModal: React.FC<EditarClienteModalProps> = ({
             error={!!errors.cpf}
             helperText={errors.cpf}
             disabled={salvando}
-            inputProps={{ maxLength: 11 }}
+            placeholder="000.000.000-00"
+            inputProps={{ maxLength: 14 }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

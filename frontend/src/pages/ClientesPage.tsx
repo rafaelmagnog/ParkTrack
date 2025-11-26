@@ -16,17 +16,40 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { getClientes, deleteCliente } from "../services/clienteService";
+import { deleteVeiculo } from "../services/veiculoService";
 import ClientesTable from "../components/clientes/ClientesTable";
 import { CriarClienteModal } from "../components/clientes/CriarClienteModal";
 import { EditarClienteModal } from "../components/clientes/EditarClienteModal";
+import { ConfirmarExclusaoClienteModal } from "../components/clientes/ConfirmarExclusaoClienteModal";
 import { useDebounce } from "../hooks/useDebounce";
 import type { Cliente } from "../types/cliente";
+import axios from "axios";
 
 type SnackbarState = {
   open: boolean;
   message: string;
   severity: "success" | "error" | "info" | "warning";
 };
+
+interface VeiculoVinculado {
+  id: number;
+  placa: string;
+  modelo: string;
+  cor: string;
+  estacionamentos: Array<{
+    id: number;
+    horaEntrada: string;
+    horaSaida: string | null;
+    valor: number | null;
+  }>;
+}
+
+interface ConfirmacaoExclusao {
+  clienteId: number;
+  clienteNome: string;
+  veiculos: VeiculoVinculado[];
+  totalEstacionamentos: number;
+}
 
 const ClientesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,6 +64,9 @@ const ClientesPage: React.FC = () => {
   });
   const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
   const [abrirModalCriar, setAbrirModalCriar] = useState(false);
+  const [confirmacaoExclusao, setConfirmacaoExclusao] =
+    useState<ConfirmacaoExclusao | null>(null);
+  const [loadingExclusaoCompleta, setLoadingExclusaoCompleta] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -65,27 +91,109 @@ const ClientesPage: React.FC = () => {
     carregarClientes();
   }, [carregarClientes]);
 
-  const handleDelete = useCallback(async (id: number) => {
-    setDeletingId(id);
+  const handleDelete = useCallback(
+    async (id: number) => {
+      const cliente = clientes.find((c) => c.id === id);
+      setDeletingId(id);
+      try {
+        await deleteCliente(id);
+        setClientes((prev) => prev.filter((c) => c.id !== id));
+        setSnackbar({
+          open: true,
+          message: "Cliente removido com sucesso.",
+          severity: "success",
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 409) {
+          const { veiculos, totalEstacionamentos } = error.response.data;
+          setConfirmacaoExclusao({
+            clienteId: id,
+            clienteNome: cliente?.nome || "",
+            veiculos,
+            totalEstacionamentos,
+          });
+        } else {
+          console.error("Erro ao deletar cliente:", error);
+          setSnackbar({
+            open: true,
+            message: "Erro ao deletar cliente.",
+            severity: "error",
+          });
+        }
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [clientes]
+  );
+
+  const handleConfirmExclusaoCompleta = useCallback(async () => {
+    if (!confirmacaoExclusao) return;
+
+    setLoadingExclusaoCompleta(true);
     try {
-      await deleteCliente(id);
-      setClientes((prev) => prev.filter((c) => c.id !== id));
+      // Deletar todos os veículos (e estacionamentos) vinculados
+      for (const veiculo of confirmacaoExclusao.veiculos) {
+        await deleteVeiculo(veiculo.id, false);
+      }
+
+      // Depois, deletar o cliente
+      await deleteCliente(confirmacaoExclusao.clienteId);
+
+      setClientes((prev) =>
+        prev.filter((c) => c.id !== confirmacaoExclusao.clienteId)
+      );
       setSnackbar({
         open: true,
-        message: "Cliente removido com sucesso.",
+        message: `Cliente, ${confirmacaoExclusao.veiculos.length} veículo(s) e ${confirmacaoExclusao.totalEstacionamentos} estacionamento(s) removidos com sucesso.`,
         severity: "success",
       });
+      setConfirmacaoExclusao(null);
     } catch (error) {
-      console.error("Erro ao deletar cliente:", error);
+      console.error("Erro ao excluir cliente e veículos:", error);
       setSnackbar({
         open: true,
-        message: "Erro ao deletar cliente.",
+        message: "Erro ao excluir cliente e veículos.",
         severity: "error",
       });
     } finally {
-      setDeletingId(null);
+      setLoadingExclusaoCompleta(false);
     }
-  }, []);
+  }, [confirmacaoExclusao]);
+
+  const handleConfirmManterHistorico = useCallback(async () => {
+    if (!confirmacaoExclusao) return;
+
+    setLoadingExclusaoCompleta(true);
+    try {
+      // Deletar veículos mantendo o histórico (snapshot)
+      for (const veiculo of confirmacaoExclusao.veiculos) {
+        await deleteVeiculo(veiculo.id, true);
+      }
+
+      // Depois, deletar o cliente
+      await deleteCliente(confirmacaoExclusao.clienteId);
+
+      setClientes((prev) =>
+        prev.filter((c) => c.id !== confirmacaoExclusao.clienteId)
+      );
+      setSnackbar({
+        open: true,
+        message: `Cliente e ${confirmacaoExclusao.veiculos.length} veículo(s) removidos. Histórico de ${confirmacaoExclusao.totalEstacionamentos} estacionamento(s) preservado.`,
+        severity: "success",
+      });
+      setConfirmacaoExclusao(null);
+    } catch (error) {
+      console.error("Erro ao excluir cliente mantendo histórico:", error);
+      setSnackbar({
+        open: true,
+        message: "Erro ao excluir cliente.",
+        severity: "error",
+      });
+    } finally {
+      setLoadingExclusaoCompleta(false);
+    }
+  }, [confirmacaoExclusao]);
 
   const handleOpenEditModal = useCallback((cliente: Cliente) => {
     setClienteEditando(cliente);
@@ -235,6 +343,17 @@ const ClientesPage: React.FC = () => {
         open={abrirModalCriar}
         onClose={() => setAbrirModalCriar(false)}
         onSuccess={handleSucessoCriarCliente}
+      />
+
+      <ConfirmarExclusaoClienteModal
+        open={confirmacaoExclusao !== null}
+        clienteNome={confirmacaoExclusao?.clienteNome || ""}
+        veiculos={confirmacaoExclusao?.veiculos || []}
+        totalEstacionamentos={confirmacaoExclusao?.totalEstacionamentos || 0}
+        loading={loadingExclusaoCompleta}
+        onConfirmDeleteAll={handleConfirmExclusaoCompleta}
+        onConfirmKeepHistory={handleConfirmManterHistorico}
+        onCancel={() => setConfirmacaoExclusao(null)}
       />
     </Box>
   );

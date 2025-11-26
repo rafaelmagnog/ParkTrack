@@ -29,6 +29,17 @@ const formatarTelefone = (telefone: string): string => {
   return telefone;
 };
 
+const formatarCPF = (cpf: string): string => {
+  const numeros = cpf.replace(/\D/g, "");
+  if (numeros.length === 11) {
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(
+      6,
+      9
+    )}-${numeros.slice(9)}`;
+  }
+  return cpf;
+};
+
 interface ClientesTableProps {
   clientes: Cliente[];
   loading?: boolean;
@@ -96,7 +107,7 @@ const ClientesTable: React.FC<ClientesTableProps> = ({
                 <TableCell align="center">
                   {formatarTelefone(cliente.telefone)}
                 </TableCell>
-                <TableCell align="center">{cliente.cpf}</TableCell>
+                <TableCell align="center">{formatarCPF(cliente.cpf)}</TableCell>
                 <TableCell align="center">
                   <Tooltip title="Editar">
                     <IconButton

@@ -33,10 +33,11 @@ model Veiculo {
 }
 
 model Estacionamento {
-  id          Int       @id @default(autoincrement())
-  veiculoId   Int
-  veiculo     Veiculo   @relation(fields: [veiculoId], references: [id])
-  horaEntrada DateTime  @default(now())
-  horaSaida   DateTime?
-  valor       Float?
+  id              Int       @id @default(autoincrement())
+  veiculoId       Int?
+  veiculo         Veiculo?  @relation(fields: [veiculoId], references: [id])
+  horaEntrada     DateTime  @default(now())
+  horaSaida       DateTime?
+  valor           Float?
+  veiculoSnapshot Json?
 }

@@ -84,8 +84,62 @@ const veiculoController = {
   async remove(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
+      const manterHistorico = req.query.manterHistorico === "true";
+
+      // Buscar dados do veículo para o snapshot
+      const veiculo = await prisma.veiculo.findUnique({
+        where: { id },
+        include: { cliente: { select: { nome: true } } },
+      });
+
+      if (!veiculo) {
+        return res.status(404).json({ message: "Veículo não encontrado" });
+      }
+
+      if (manterHistorico) {
+        // Criar snapshot do veículo
+        const snapshot = {
+          placa: veiculo.placa,
+          modelo: veiculo.modelo,
+          cor: veiculo.cor,
+          clienteNome: veiculo.cliente.nome,
+        };
+
+        // Atualizar estacionamentos: salvar snapshot, remover vínculo, finalizar ativos
+        await prisma.estacionamento.updateMany({
+          where: { veiculoId: id, horaSaida: null },
+          data: { horaSaida: new Date() },
+        });
+
+        // Atualizar todos os estacionamentos com o snapshot e remover veiculoId
+        const estacionamentos = await prisma.estacionamento.findMany({
+          where: { veiculoId: id },
+        });
+
+        for (const est of estacionamentos) {
+          await prisma.estacionamento.update({
+            where: { id: est.id },
+            data: {
+              veiculoId: null as unknown as undefined,
+              veiculoSnapshot: snapshot,
+            },
+          });
+        }
+      } else {
+        // Deletar todos os estacionamentos vinculados
+        await prisma.estacionamento.deleteMany({
+          where: { veiculoId: id },
+        });
+      }
+
+      // Deletar o veículo
       await veiculoService.remove(id);
-      res.status(200).json({ message: "Veículo removido com sucesso", id });
+      res.status(200).json({
+        message: manterHistorico
+          ? "Veículo removido. Histórico de estacionamentos mantido."
+          : "Veículo e estacionamentos removidos com sucesso.",
+        id,
+      });
     } catch (err) {
       next(err);
     }
