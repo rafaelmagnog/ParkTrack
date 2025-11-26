@@ -65,6 +65,20 @@ const clienteController = {
   async remove(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
+
+      // Verificar se o cliente possui veículos vinculados
+      const veiculosVinculados = await prisma.veiculo.findMany({
+        where: { clienteId: id },
+        select: { id: true, placa: true, modelo: true },
+      });
+
+      if (veiculosVinculados.length > 0) {
+        return res.status(409).json({
+          message: "Cliente possui veículos vinculados",
+          veiculos: veiculosVinculados,
+        });
+      }
+
       await clienteService.remove(id);
       res.status(200).json({ message: "Cliente removido com sucesso", id });
     } catch (err) {

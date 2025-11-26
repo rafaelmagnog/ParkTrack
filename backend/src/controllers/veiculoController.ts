@@ -84,6 +84,13 @@ const veiculoController = {
   async remove(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
+
+      // Primeiro, deleta todos os estacionamentos vinculados ao veículo
+      await prisma.estacionamento.deleteMany({
+        where: { veiculoId: id },
+      });
+
+      // Depois, deletar o veículo
       await veiculoService.remove(id);
       res.status(200).json({ message: "Veículo removido com sucesso", id });
     } catch (err) {
