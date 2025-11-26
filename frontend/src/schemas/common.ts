@@ -20,13 +20,17 @@ export const MENSAGENS = {
 export const cpfSchema = z
   .string({ error: MENSAGENS.obrigatorio("CPF") })
   .min(1, MENSAGENS.obrigatorio("CPF"))
-  .length(11, "CPF deve ter 11 dígitos")
-  .regex(/^\d+$/, MENSAGENS.apenasNumeros("CPF"));
+  .transform((v) => v.replace(/\D/g, ""))
+  .refine((v) => v.length === 11, "CPF deve ter 11 dígitos");
 
 export const telefoneSchema = z
   .string({ error: MENSAGENS.obrigatorio("Telefone") })
   .min(1, MENSAGENS.obrigatorio("Telefone"))
-  .regex(/^\d{10,11}$/, "Telefone deve ter 10 ou 11 dígitos");
+  .transform((v) => v.replace(/\D/g, ""))
+  .refine(
+    (v) => v.length >= 10 && v.length <= 11,
+    "Telefone deve ter 10 ou 11 dígitos"
+  );
 
 export const placaSchema = z
   .string({ error: MENSAGENS.obrigatorio("Placa") })
