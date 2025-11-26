@@ -5,7 +5,8 @@ import prisma from "../db/prisma";
 const estacionamentoController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const lista = await estacionamentoService.getAll();
+      // Usa getDetailed para incluir dados do veículo e cliente
+      const lista = await estacionamentoService.getDetailed();
       if (!lista.length) {
         return res
           .status(404)

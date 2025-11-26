@@ -69,13 +69,33 @@ const clienteController = {
       // Verificar se o cliente possui veículos vinculados
       const veiculosVinculados = await prisma.veiculo.findMany({
         where: { clienteId: id },
-        select: { id: true, placa: true, modelo: true },
+        select: {
+          id: true,
+          placa: true,
+          modelo: true,
+          cor: true,
+          estacionamentos: {
+            select: {
+              id: true,
+              horaEntrada: true,
+              horaSaida: true,
+              valor: true,
+            },
+          },
+        },
       });
 
       if (veiculosVinculados.length > 0) {
+        // Contar total de estacionamentos
+        const totalEstacionamentos = veiculosVinculados.reduce(
+          (acc, v) => acc + v.estacionamentos.length,
+          0
+        );
+
         return res.status(409).json({
           message: "Cliente possui veículos vinculados",
           veiculos: veiculosVinculados,
+          totalEstacionamentos,
         });
       }
 

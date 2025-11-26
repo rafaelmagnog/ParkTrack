@@ -34,8 +34,13 @@ export const updateVeiculo = async (
   return response.data;
 };
 
-export const deleteVeiculo = async (id: number): Promise<void> => {
-  await axios.delete(`${API_ENDPOINTS.VEICULOS}/${id}`);
+export const deleteVeiculo = async (
+  id: number,
+  manterHistorico: boolean = false
+): Promise<void> => {
+  await axios.delete(
+    `${API_ENDPOINTS.VEICULOS}/${id}?manterHistorico=${manterHistorico}`
+  );
 };
 
 export default {

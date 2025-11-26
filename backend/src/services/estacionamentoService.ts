@@ -21,7 +21,11 @@ const estacionamentoService = {
   async getById(id: number): Promise<Estacionamento | null> {
     return prisma.estacionamento.findUnique({
       where: { id },
-      include: { veiculo: true },
+      include: {
+        veiculo: {
+          include: { cliente: true },
+        },
+      },
     });
   },
 
