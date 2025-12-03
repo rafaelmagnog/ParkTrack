@@ -96,8 +96,40 @@ const veiculoController = {
         return res.status(404).json({ message: "Veículo não encontrado" });
       }
 
-      if (manterHistorico) {
-        // Criar snapshot do veículo
+      // Verificar se possui estacionamentos vinculados
+      const estacionamentos = await prisma.estacionamento.findMany({
+        where: { veiculoId: id },
+        select: {
+          id: true,
+          horaEntrada: true,
+          horaSaida: true,
+          valor: true,
+        },
+      });
+
+      // Se tem estacionamentos e não foi passado manterHistorico, retorna 409
+      // para que o frontend exiba o modal de confirmação
+      if (
+        estacionamentos.length > 0 &&
+        req.query.manterHistorico === undefined
+      ) {
+        return res.status(409).json({
+          message: "Veículo possui estacionamentos vinculados",
+          veiculo: {
+            id: veiculo.id,
+            placa: veiculo.placa,
+            modelo: veiculo.modelo,
+            cor: veiculo.cor,
+            clienteNome: veiculo.cliente.nome,
+          },
+          estacionamentos,
+          totalEstacionamentos: estacionamentos.length,
+        });
+      }
+
+      // Manter histórico: salvar snapshot e desvincular estacionamentos
+      if (manterHistorico && estacionamentos.length > 0) {
+        // Criar snapshot do veículo para preservar dados após exclusão
         const snapshot = {
           placa: veiculo.placa,
           modelo: veiculo.modelo,
@@ -105,18 +137,39 @@ const veiculoController = {
           clienteNome: veiculo.cliente.nome,
         };
 
-        // Atualizar estacionamentos: salvar snapshot, remover vínculo, finalizar ativos
-        await prisma.estacionamento.updateMany({
+        const PRECO_POR_HORA = 10; // R$ 10,00 por hora
+
+        // Função para calcular valor do estacionamento
+        const calcularValor = (horaEntrada: Date, horaSaida: Date): number => {
+          const diffMs = horaSaida.getTime() - horaEntrada.getTime();
+          const diffHoras = diffMs / (1000 * 60 * 60);
+          // Mínimo de 1 hora, arredondando para cima
+          const horasCobranca = Math.max(1, Math.ceil(diffHoras));
+          return horasCobranca * PRECO_POR_HORA;
+        };
+
+        // Buscar estacionamentos ativos para finalizar e calcular valor
+        const estacionamentosAtivos = await prisma.estacionamento.findMany({
           where: { veiculoId: id, horaSaida: null },
-          data: { horaSaida: new Date() },
         });
 
+        const agora = new Date();
+
+        // Finalizar estacionamentos ativos com valor calculado
+        for (const est of estacionamentosAtivos) {
+          const valorCalculado = calcularValor(est.horaEntrada, agora);
+          await prisma.estacionamento.update({
+            where: { id: est.id },
+            data: { horaSaida: agora, valor: valorCalculado },
+          });
+        }
+
         // Atualizar todos os estacionamentos com o snapshot e remover veiculoId
-        const estacionamentos = await prisma.estacionamento.findMany({
+        const todosEstacionamentos = await prisma.estacionamento.findMany({
           where: { veiculoId: id },
         });
 
-        for (const est of estacionamentos) {
+        for (const est of todosEstacionamentos) {
           await prisma.estacionamento.update({
             where: { id: est.id },
             data: {
@@ -125,7 +178,7 @@ const veiculoController = {
             },
           });
         }
-      } else {
+      } else if (estacionamentos.length > 0) {
         // Deletar todos os estacionamentos vinculados
         await prisma.estacionamento.deleteMany({
           where: { veiculoId: id },

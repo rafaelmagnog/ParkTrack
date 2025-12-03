@@ -65,6 +65,7 @@ const estacionamentoController = {
         return res.status(409).json({
           message: "Veículo já está estacionado",
           estacionamentoAtivoId: veiculoEstacionado.id,
+          horaEntrada: veiculoEstacionado.horaEntrada,
         });
       }
 
@@ -79,7 +80,7 @@ const estacionamentoController = {
     try {
       const id = Number(req.params.id);
 
-      // Validar horaSaida > horaEntrada
+      // Validar horaSaida >= horaEntrada (ignorando segundos)
       if (req.body.horaSaida) {
         const estacionamento = await prisma.estacionamento.findUnique({
           where: { id },
@@ -87,7 +88,10 @@ const estacionamentoController = {
         if (estacionamento) {
           const horaEntrada = new Date(estacionamento.horaEntrada);
           const horaSaida = new Date(req.body.horaSaida);
-          if (horaSaida <= horaEntrada) {
+          // Zerar segundos e milissegundos para comparação justa
+          horaEntrada.setSeconds(0, 0);
+          horaSaida.setSeconds(0, 0);
+          if (horaSaida < horaEntrada) {
             return res.status(400).json({
               message: "Hora de saída deve ser posterior à hora de entrada",
             });

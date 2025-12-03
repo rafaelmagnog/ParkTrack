@@ -21,16 +21,20 @@ interface EditarEstacionamentoModalProps {
   onSave: (estacionamento: Estacionamento) => void;
 }
 
-const PRECO_POR_HORA = 10; // R$ 10,00 por hora
+const PRECO_POR_HORA = 10;
 
 const calcularValor = (horaEntrada: string, horaSaida: string): number => {
   const entrada = new Date(horaEntrada);
   const saida = new Date(horaSaida);
   const diffMs = saida.getTime() - entrada.getTime();
   const diffHoras = diffMs / (1000 * 60 * 60);
-  // Mínimo de 1 hora, arredondando para cima
   const horasCobranca = Math.max(1, Math.ceil(diffHoras));
   return horasCobranca * PRECO_POR_HORA;
+};
+
+const toLocalDateTimeString = (date: Date): string => {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 };
 
 export const EditarEstacionamentoModal: React.FC<
@@ -44,23 +48,21 @@ export const EditarEstacionamentoModal: React.FC<
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
-    if (estacionamento) {
+    if (estacionamento && open) {
       const now = new Date();
-      const horaSaida =
-        estacionamento.horaSaida || now.toISOString().slice(0, 16);
-      const valor =
-        estacionamento.valor ||
-        (estacionamento.horaSaida
-          ? calcularValor(estacionamento.horaEntrada, estacionamento.horaSaida)
-          : calcularValor(estacionamento.horaEntrada, now.toISOString()));
+      const horaSaida = estacionamento.horaSaida
+        ? toLocalDateTimeString(new Date(estacionamento.horaSaida))
+        : toLocalDateTimeString(now);
 
-      setFormData({
-        horaSaida: horaSaida.slice(0, 16),
-        valor,
-      });
+      const valor = estacionamento.horaSaida
+        ? estacionamento.valor ||
+          calcularValor(estacionamento.horaEntrada, estacionamento.horaSaida)
+        : calcularValor(estacionamento.horaEntrada, now.toISOString());
+
+      setFormData({ horaSaida, valor });
       setErrors({});
     }
-  }, [estacionamento]);
+  }, [estacionamento, open]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,11 +92,14 @@ export const EditarEstacionamentoModal: React.FC<
 
       if (!estacionamento) return;
 
-      // Validação frontend: horaSaida > horaEntrada
+      // Validação frontend: horaSaida >= horaEntrada (ignorando segundos)
       if (formData.horaSaida) {
         const horaEntrada = new Date(estacionamento.horaEntrada);
         const horaSaida = new Date(formData.horaSaida);
-        if (horaSaida <= horaEntrada) {
+        // Zerar segundos e milissegundos para comparação justa
+        horaEntrada.setSeconds(0, 0);
+        horaSaida.setSeconds(0, 0);
+        if (horaSaida < horaEntrada) {
           setErrors({
             horaSaida: "Hora de saída deve ser posterior à hora de entrada",
           });
