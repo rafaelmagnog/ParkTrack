@@ -36,19 +36,19 @@
 
 ## 📋 Índice
 
-- [Sobre o Projeto](#-sobre-o-projeto)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#️-tecnologias)
-- [Arquitetura](#-arquitetura)
-- [Como Executar](#-como-executar)
-- [Variáveis de Ambiente](#-variáveis-de-ambiente)
-- [Documentação da API](#-documentação-da-api)
-- [Modelo de Dados](#-modelo-de-dados)
-- [Deploy](#-deploy)
-- [Scripts Disponíveis](#-scripts-disponíveis)
-- [Roadmap](#️-roadmap)
-- [Autor](#-autor)
-- [Contribuidores](#-contribuidores)
+- [🧭 Sobre o Projeto](#-sobre-o-projeto)
+- [⚙️ Funcionalidades](#%EF%B8%8F-funcionalidades)
+- [🛠️ Tecnologias](#%EF%B8%8F-tecnologias)
+- [🏗️ Arquitetura](#%EF%B8%8F-arquitetura)
+- [🚀 Como Executar](#-como-executar)
+- [🔐 Variáveis de Ambiente](#-variáveis-de-ambiente)
+- [📚 Documentação da API](#-documentação-da-api)
+- [📊 Modelo de Dados](#-modelo-de-dados)
+- [☁️ Deploy](#%EF%B8%8F-deploy)
+- [📜 Scripts Disponíveis](#-scripts-disponíveis)
+- [🗺️ Roadmap](#%EF%B8%8F-roadmap)
+- [👥 Contribuidores](#-contribuidores)
+- [👤 Autor](#-autor)
 
 ---
 
@@ -588,7 +588,18 @@ Utilizamos [Conventional Commits](https://www.conventionalcommits.org/) com emoj
 
 ---
 
-## 👨‍💻 Autor
+## 👥 Contribuidores
+<a href="https://github.com/rafaelmagnog">
+  <img src="https://github.com/rafaelmagnog.png" width="60" height="60" style="border-radius: 50%;" />
+</a>
+&nbsp;
+<a href="https://github.com/HugoLinsX">
+  <img src="https://github.com/HugoLinsX.png" width="60" height="60" style="border-radius: 50%;" />
+</a>
+
+---
+
+## 👤 Autor
 
 <div align="center">
 
@@ -598,17 +609,6 @@ Utilizamos [Conventional Commits](https://www.conventionalcommits.org/) com emoj
 [![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/rafaelmagnog)
 
 </div>
-
----
-
-## 👥 Contribuidores
-<a href="https://github.com/rafaelmagnog">
-  <img src="https://github.com/rafaelmagnog.png" width="60" height="60" style="border-radius: 50%;" />
-</a>
-&nbsp;
-<a href="https://github.com/HugoLinsX">
-  <img src="https://github.com/HugoLinsX.png" width="60" height="60" style="border-radius: 50%;" />
-</a>
 
 ---
 
