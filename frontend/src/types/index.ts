@@ -1,3 +1,5 @@
+// Re-export de tipos
+
 export type {
   Cliente,
   CreateClienteInput,

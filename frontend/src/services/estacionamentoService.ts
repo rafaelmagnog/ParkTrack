@@ -1,3 +1,10 @@
+/**
+ * Serviço de comunicação com a API de Estacionamentos
+ *
+ * Funções para gerenciar registros de entrada/saída de veículos.
+ * Create = entrada, Update = finalização com valor.
+ */
+
 import axios from "axios";
 import type {
   Estacionamento,
@@ -6,6 +13,7 @@ import type {
 } from "../types/estacionamento";
 import { API_ENDPOINTS } from "../config/api";
 
+/** Busca todos os registros de estacionamento */
 export const getEstacionamentos = async (): Promise<Estacionamento[]> => {
   const response = await axios.get<Estacionamento[]>(
     API_ENDPOINTS.ESTACIONAMENTOS
@@ -13,6 +21,7 @@ export const getEstacionamentos = async (): Promise<Estacionamento[]> => {
   return response.data;
 };
 
+/** Busca um registro específico pelo ID */
 export const getEstacionamentoById = async (
   id: number
 ): Promise<Estacionamento> => {
@@ -22,6 +31,7 @@ export const getEstacionamentoById = async (
   return response.data;
 };
 
+/** Registra entrada de um veículo no estacionamento */
 export const createEstacionamento = async (
   dados: CreateEstacionamentoInput
 ): Promise<Estacionamento> => {
@@ -32,6 +42,7 @@ export const createEstacionamento = async (
   return response.data;
 };
 
+/** Atualiza registro (geralmente para finalizar com horaSaida e valor) */
 export const updateEstacionamento = async (
   id: number,
   dados: UpdateEstacionamentoInput
@@ -43,6 +54,7 @@ export const updateEstacionamento = async (
   return response.data;
 };
 
+/** Remove um registro de estacionamento */
 export const deleteEstacionamento = async (id: number): Promise<void> => {
   await axios.delete(`${API_ENDPOINTS.ESTACIONAMENTOS}/${id}`);
 };

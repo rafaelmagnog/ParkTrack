@@ -1,4 +1,12 @@
-// src/swagger/swagger.ts
+/**
+ * Configuração do Swagger/OpenAPI
+ *
+ * Define a documentação interativa da API usando swagger-jsdoc.
+ * Acesse /api-docs para visualizar a documentação no navegador.
+ *
+ * Inclui schemas, exemplos e respostas de erro padronizadas.
+ */
+
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { Express } from "express";
@@ -21,6 +29,7 @@ export function setupSwagger(app: Express) {
         { name: "Veiculos", description: "Gestão de veículos" },
         { name: "Estacionamentos", description: "Registros de estacionamento" },
       ],
+      // Definição de componentes reutilizáveis na documentação
       components: {
         parameters: {
           IdParam: {

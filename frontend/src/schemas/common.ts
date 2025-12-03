@@ -1,8 +1,10 @@
+/**
+ * Schemas e mensagens de validação comuns
+ */
+
 import { z } from "zod";
 
-/**
- * Mensagens de erro centralizadas
- */
+// Mensagens de erro padrão
 export const MENSAGENS = {
   obrigatorio: (campo: string) => `${campo} é obrigatório`,
   minCaracteres: (campo: string, min: number) =>
@@ -14,15 +16,16 @@ export const MENSAGENS = {
   invalido: (campo: string) => `${campo} inválido`,
 };
 
-/**
- * Schemas reutilizáveis
- */
+// ============ Schemas reutilizáveis ============
+
+/** CPF - remove máscaras e valida 11 dígitos */
 export const cpfSchema = z
   .string({ error: MENSAGENS.obrigatorio("CPF") })
   .min(1, MENSAGENS.obrigatorio("CPF"))
-  .transform((v) => v.replace(/\D/g, ""))
+  .transform((v) => v.replace(/\D/g, "")) // Remove tudo que não é número
   .refine((v) => v.length === 11, "CPF deve ter 11 dígitos");
 
+/** Telefone - remove máscaras, aceita 10 ou 11 dígitos */
 export const telefoneSchema = z
   .string({ error: MENSAGENS.obrigatorio("Telefone") })
   .min(1, MENSAGENS.obrigatorio("Telefone"))
@@ -32,6 +35,7 @@ export const telefoneSchema = z
     "Telefone deve ter 10 ou 11 dígitos"
   );
 
+/** Placa do veículo - converte para maiúsculas */
 export const placaSchema = z
   .string({ error: MENSAGENS.obrigatorio("Placa") })
   .min(1, MENSAGENS.obrigatorio("Placa"))
@@ -39,6 +43,7 @@ export const placaSchema = z
   .max(8, "Placa deve ter no máximo 8 caracteres")
   .transform((v) => v.toUpperCase());
 
+/** Nome genérico - usado para clientes */
 export const nomeSchema = z
   .string({ error: MENSAGENS.obrigatorio("Nome") })
   .min(1, MENSAGENS.obrigatorio("Nome"))
@@ -46,7 +51,8 @@ export const nomeSchema = z
   .max(100, MENSAGENS.maxCaracteres("Nome", 100));
 
 /**
- * Schema para IDs numéricos (usa coerce para converter string -> number)
+ * Schema para IDs numéricos (relacionamentos).
+ * Usa coerce para converter string de select para number.
  */
 export const idSchema = (campo: string) =>
   z.coerce

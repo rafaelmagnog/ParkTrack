@@ -1,3 +1,11 @@
+/**
+ * Página de gerenciamento de Clientes
+ *
+ * Permite listar, buscar, criar, editar e excluir clientes.
+ * A exclusão tem tratamento especial quando há veículos vinculados,
+ * permitindo manter ou excluir o histórico de estacionamentos.
+ */
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -21,6 +29,7 @@ import ClientesTable from "../components/clientes/ClientesTable";
 import { CriarClienteModal } from "../components/clientes/CriarClienteModal";
 import { EditarClienteModal } from "../components/clientes/EditarClienteModal";
 import { ConfirmarExclusaoClienteModal } from "../components/clientes/ConfirmarExclusaoClienteModal";
+import { ConfirmarExclusaoModal } from "../components/common";
 import { useDebounce } from "../hooks/useDebounce";
 import type { Cliente } from "../types/cliente";
 import axios from "axios";
@@ -67,6 +76,9 @@ const ClientesPage: React.FC = () => {
   const [confirmacaoExclusao, setConfirmacaoExclusao] =
     useState<ConfirmacaoExclusao | null>(null);
   const [loadingExclusaoCompleta, setLoadingExclusaoCompleta] = useState(false);
+  const [clienteParaExcluir, setClienteParaExcluir] = useState<Cliente | null>(
+    null
+  );
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -91,41 +103,52 @@ const ClientesPage: React.FC = () => {
     carregarClientes();
   }, [carregarClientes]);
 
-  const handleDelete = useCallback(
-    async (id: number) => {
+  const handleRequestDelete = useCallback(
+    (id: number) => {
       const cliente = clientes.find((c) => c.id === id);
-      setDeletingId(id);
-      try {
-        await deleteCliente(id);
-        setClientes((prev) => prev.filter((c) => c.id !== id));
-        setSnackbar({
-          open: true,
-          message: "Cliente removido com sucesso.",
-          severity: "success",
-        });
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 409) {
-          const { veiculos, totalEstacionamentos } = error.response.data;
-          setConfirmacaoExclusao({
-            clienteId: id,
-            clienteNome: cliente?.nome || "",
-            veiculos,
-            totalEstacionamentos,
-          });
-        } else {
-          console.error("Erro ao deletar cliente:", error);
-          setSnackbar({
-            open: true,
-            message: "Erro ao deletar cliente.",
-            severity: "error",
-          });
-        }
-      } finally {
-        setDeletingId(null);
+      if (cliente) {
+        setClienteParaExcluir(cliente);
       }
     },
     [clientes]
   );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!clienteParaExcluir) return;
+
+    const id = clienteParaExcluir.id;
+    setClienteParaExcluir(null);
+    setDeletingId(id);
+
+    try {
+      await deleteCliente(id);
+      setClientes((prev) => prev.filter((c) => c.id !== id));
+      setSnackbar({
+        open: true,
+        message: "Cliente removido com sucesso.",
+        severity: "success",
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        const { veiculos, totalEstacionamentos } = error.response.data;
+        setConfirmacaoExclusao({
+          clienteId: id,
+          clienteNome: clienteParaExcluir.nome,
+          veiculos,
+          totalEstacionamentos,
+        });
+      } else {
+        console.error("Erro ao deletar cliente:", error);
+        setSnackbar({
+          open: true,
+          message: "Erro ao deletar cliente.",
+          severity: "error",
+        });
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  }, [clienteParaExcluir]);
 
   const handleConfirmExclusaoCompleta = useCallback(async () => {
     if (!confirmacaoExclusao) return;
@@ -313,7 +336,7 @@ const ClientesPage: React.FC = () => {
           loading={loading}
           deletingId={deletingId}
           onEdit={handleOpenEditModal}
-          onDelete={handleDelete}
+          onDelete={handleRequestDelete}
         />
 
         <Snackbar
@@ -354,6 +377,14 @@ const ClientesPage: React.FC = () => {
         onConfirmDeleteAll={handleConfirmExclusaoCompleta}
         onConfirmKeepHistory={handleConfirmManterHistorico}
         onCancel={() => setConfirmacaoExclusao(null)}
+      />
+
+      <ConfirmarExclusaoModal
+        open={clienteParaExcluir !== null}
+        titulo="Confirmar exclusão"
+        mensagem={`Deseja realmente excluir o cliente "${clienteParaExcluir?.nome}"?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setClienteParaExcluir(null)}
       />
     </Box>
   );

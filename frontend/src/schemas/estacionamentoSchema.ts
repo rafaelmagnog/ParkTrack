@@ -1,10 +1,19 @@
+/**
+ * Schema de validação para Estacionamento (frontend)
+ *
+ * Criação só precisa do veiculoId (registro de entrada).
+ * Atualização valida horaSaida e valor (finalização).
+ */
+
 import { z } from "zod";
 import { idSchema } from "./common";
 
+// Schema para criação (entrada) - só precisa do veículo
 export const createEstacionamentoSchema = z.object({
   veiculoId: idSchema("veículo"),
 });
 
+// Schema para atualização (finalização) - horaSaida e valor opcionais
 export const updateEstacionamentoSchema = z.object({
   horaSaida: z
     .string()
@@ -19,6 +28,7 @@ export const updateEstacionamentoSchema = z.object({
     .optional(),
 });
 
+// Tipos inferidos para formulários
 export type CreateEstacionamentoSchemaInput = z.infer<
   typeof createEstacionamentoSchema
 >;

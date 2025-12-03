@@ -1,5 +1,13 @@
+/**
+ * Schemas de validação para Cliente
+ *
+ * Define as regras de validação usando Zod para criação e
+ * atualização de clientes. Também valida o parâmetro ID.
+ */
+
 import { z } from "zod";
 
+// Schema para criação de cliente - todos os campos obrigatórios
 export const createClienteSchema = z.object({
   nome: z
     .string()
@@ -15,8 +23,10 @@ export const createClienteSchema = z.object({
     .regex(/^\d+$/, "CPF deve conter apenas números"),
 });
 
+// Schema para atualização - campos opcionais (partial)
 export const updateClienteSchema = createClienteSchema.partial();
 
+// Valida o parâmetro ID da URL (vem como string, converte para number)
 export const idParamSchema = z.object({
   id: z
     .string()
@@ -25,6 +35,7 @@ export const idParamSchema = z.object({
     .refine((num) => num > 0, "ID deve ser positivo"),
 });
 
+// Tipos inferidos dos schemas para usar nos controllers/services
 export type CreateClienteData = z.infer<typeof createClienteSchema>;
 export type UpdateClienteData = z.infer<typeof updateClienteSchema>;
 export type IdParam = z.infer<typeof idParamSchema>;

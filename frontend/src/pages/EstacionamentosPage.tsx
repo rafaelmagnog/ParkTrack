@@ -1,3 +1,11 @@
+/**
+ * Página de gerenciamento de Estacionamentos
+ *
+ * Exibe a lista de registros de entrada/saída de veículos.
+ * Permite filtrar por status (ativos/finalizados), registrar
+ * novas entradas e finalizar estacionamentos calculando o valor.
+ */
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -23,6 +31,7 @@ import {
 import EstacionamentosTable from "../components/estacionamentos/EstacionamentosTable";
 import { CriarEstacionamentoModal } from "../components/estacionamentos/CriarEstacionamentoModal";
 import { EditarEstacionamentoModal } from "../components/estacionamentos/EditarEstacionamentoModal";
+import { ConfirmarExclusaoModal } from "../components/common";
 import { useDebounce } from "../hooks/useDebounce";
 import type { Estacionamento } from "../types/estacionamento";
 
@@ -49,6 +58,8 @@ const EstacionamentosPage: React.FC = () => {
   const [estacionamentoEditando, setEstacionamentoEditando] =
     useState<Estacionamento | null>(null);
   const [abrirModalCriar, setAbrirModalCriar] = useState(false);
+  const [estacionamentoParaExcluir, setEstacionamentoParaExcluir] =
+    useState<Estacionamento | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -73,8 +84,23 @@ const EstacionamentosPage: React.FC = () => {
     carregarEstacionamentos();
   }, [carregarEstacionamentos]);
 
-  const handleDelete = useCallback(async (id: number) => {
+  const handleRequestDelete = useCallback(
+    (id: number) => {
+      const estacionamento = estacionamentos.find((e) => e.id === id);
+      if (estacionamento) {
+        setEstacionamentoParaExcluir(estacionamento);
+      }
+    },
+    [estacionamentos]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!estacionamentoParaExcluir) return;
+
+    const id = estacionamentoParaExcluir.id;
+    setEstacionamentoParaExcluir(null);
     setDeletingId(id);
+
     try {
       await deleteEstacionamento(id);
       setEstacionamentos((prev) => prev.filter((e) => e.id !== id));
@@ -93,7 +119,7 @@ const EstacionamentosPage: React.FC = () => {
     } finally {
       setDeletingId(null);
     }
-  }, []);
+  }, [estacionamentoParaExcluir]);
 
   const handleOpenEditModal = useCallback((estacionamento: Estacionamento) => {
     setEstacionamentoEditando(estacionamento);
@@ -308,7 +334,7 @@ const EstacionamentosPage: React.FC = () => {
           loading={loading}
           deletingId={deletingId}
           onEdit={handleOpenEditModal}
-          onDelete={handleDelete}
+          onDelete={handleRequestDelete}
           onRegistrarSaida={handleRegistrarSaida}
         />
 
@@ -340,6 +366,14 @@ const EstacionamentosPage: React.FC = () => {
         onClose={() => setAbrirModalCriar(false)}
         onSuccess={handleSucessoCriarEstacionamento}
         onEstacionamentoFinalizado={handleEstacionamentoFinalizado}
+      />
+
+      <ConfirmarExclusaoModal
+        open={estacionamentoParaExcluir !== null}
+        titulo="Confirmar exclusão"
+        mensagem={`Deseja realmente excluir o registro de estacionamento #${estacionamentoParaExcluir?.id}?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setEstacionamentoParaExcluir(null)}
       />
     </Box>
   );
