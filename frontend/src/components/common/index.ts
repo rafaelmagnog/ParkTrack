@@ -1,0 +1,1 @@
+export { ConfirmarExclusaoModal } from "./ConfirmarExclusaoModal";

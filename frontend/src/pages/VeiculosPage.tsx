@@ -21,6 +21,7 @@ import VeiculosTable from "../components/veiculos/VeiculosTable";
 import { CriarVeiculoModal } from "../components/veiculos/CriarVeiculoModal";
 import { EditarVeiculoModal } from "../components/veiculos/EditarVeiculoModal";
 import { ConfirmarExclusaoVeiculoModal } from "../components/veiculos/ConfirmarExclusaoVeiculoModal";
+import { ConfirmarExclusaoModal } from "../components/common";
 import { useDebounce } from "../hooks/useDebounce";
 import type { Veiculo } from "../types/veiculo";
 
@@ -66,6 +67,9 @@ const VeiculosPage: React.FC = () => {
   const [confirmacaoExclusao, setConfirmacaoExclusao] =
     useState<ConfirmacaoExclusao | null>(null);
   const [loadingExclusao, setLoadingExclusao] = useState(false);
+  const [veiculoParaExcluir, setVeiculoParaExcluir] = useState<Veiculo | null>(
+    null
+  );
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -90,8 +94,23 @@ const VeiculosPage: React.FC = () => {
     carregarVeiculos();
   }, [carregarVeiculos]);
 
-  const handleDelete = useCallback(async (id: number) => {
+  const handleRequestDelete = useCallback(
+    (id: number) => {
+      const veiculo = veiculos.find((v) => v.id === id);
+      if (veiculo) {
+        setVeiculoParaExcluir(veiculo);
+      }
+    },
+    [veiculos]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!veiculoParaExcluir) return;
+
+    const id = veiculoParaExcluir.id;
+    setVeiculoParaExcluir(null);
     setDeletingId(id);
+
     try {
       await deleteVeiculo(id);
       setVeiculos((prev) => prev.filter((v) => v.id !== id));
@@ -115,7 +134,7 @@ const VeiculosPage: React.FC = () => {
     } finally {
       setDeletingId(null);
     }
-  }, []);
+  }, [veiculoParaExcluir]);
 
   const handleConfirmDeleteAll = useCallback(async () => {
     if (!confirmacaoExclusao) return;
@@ -291,7 +310,7 @@ const VeiculosPage: React.FC = () => {
           loading={loading}
           deletingId={deletingId}
           onEdit={handleOpenEditModal}
-          onDelete={handleDelete}
+          onDelete={handleRequestDelete}
         />
 
         <Snackbar
@@ -331,6 +350,14 @@ const VeiculosPage: React.FC = () => {
         onConfirmDeleteAll={handleConfirmDeleteAll}
         onConfirmKeepHistory={handleConfirmKeepHistory}
         onCancel={() => setConfirmacaoExclusao(null)}
+      />
+
+      <ConfirmarExclusaoModal
+        open={veiculoParaExcluir !== null}
+        titulo="Confirmar exclusão"
+        mensagem={`Deseja realmente excluir o veículo "${veiculoParaExcluir?.placa}"?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setVeiculoParaExcluir(null)}
       />
     </Box>
   );
