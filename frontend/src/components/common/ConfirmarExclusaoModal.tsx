@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -26,6 +27,19 @@ export const ConfirmarExclusaoModal: React.FC<ConfirmarExclusaoModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  // Mantém o último valor válido da mensagem para evitar "undefined" durante animação
+  const lastMensagemRef = useRef(mensagem);
+
+  useEffect(() => {
+    if (mensagem && !mensagem.includes("undefined")) {
+      lastMensagemRef.current = mensagem;
+    }
+  }, [mensagem]);
+
+  const displayMensagem = mensagem?.includes("undefined")
+    ? lastMensagemRef.current
+    : mensagem;
+
   return (
     <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -33,7 +47,7 @@ export const ConfirmarExclusaoModal: React.FC<ConfirmarExclusaoModalProps> = ({
         {titulo}
       </DialogTitle>
       <DialogContent>
-        <Typography>{mensagem}</Typography>
+        <Typography>{displayMensagem}</Typography>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onCancel} disabled={loading} color="inherit">
