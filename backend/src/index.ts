@@ -7,7 +7,14 @@ import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
-app.use(cors());
+// Configuração de CORS para aceitar requisições do frontend
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 setupSwagger(app);
 app.use("", routes);
