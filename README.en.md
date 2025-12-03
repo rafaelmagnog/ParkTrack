@@ -573,7 +573,7 @@ Using **Conventional Commits** with emojis:
 **Rafael Magno**
 
 [![GitHub](https://img.shields.io/badge/-rafaelmagnog-181717?style=for-the-badge\&logo=github)](https://github.com/rafaelmagnog)
-[![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=for-the-badge\&logo=linkedin)](https://linkedin.com/in/rafaelmagnog)
+[![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=for-the-badge\&logo=linkedin)](https://www.linkedin.com/in/rafael-magno-dev/)
 
 </div>
 
