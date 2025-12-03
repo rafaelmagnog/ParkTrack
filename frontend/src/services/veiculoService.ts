@@ -36,11 +36,15 @@ export const updateVeiculo = async (
 
 export const deleteVeiculo = async (
   id: number,
-  manterHistorico: boolean = false
+  manterHistorico?: boolean
 ): Promise<void> => {
-  await axios.delete(
-    `${API_ENDPOINTS.VEICULOS}/${id}?manterHistorico=${manterHistorico}`
-  );
+  // Se manterHistorico não foi definido, não passa o parâmetro (para verificação)
+  // Se foi definido, passa o valor (para ação definitiva)
+  const url =
+    manterHistorico === undefined
+      ? `${API_ENDPOINTS.VEICULOS}/${id}`
+      : `${API_ENDPOINTS.VEICULOS}/${id}?manterHistorico=${manterHistorico}`;
+  await axios.delete(url);
 };
 
 export default {

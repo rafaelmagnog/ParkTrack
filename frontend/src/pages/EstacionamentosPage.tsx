@@ -157,12 +157,33 @@ const EstacionamentosPage: React.FC = () => {
     if (debouncedSearchTerm) {
       const termo = debouncedSearchTerm.toLowerCase();
       resultado = resultado.filter((estacionamento) => {
+        // Busca na placa do veículo existente
+        const placaVeiculo = estacionamento.veiculo?.placa?.toLowerCase();
+        // Busca na placa do snapshot (veículo deletado com histórico mantido)
+        const placaSnapshot =
+          estacionamento.veiculoSnapshot?.placa?.toLowerCase();
+
         return (
-          estacionamento.veiculo?.placa?.toLowerCase().includes(termo) ||
+          placaVeiculo?.includes(termo) ||
+          placaSnapshot?.includes(termo) ||
           String(estacionamento.veiculoId).includes(termo)
         );
       });
     }
+
+    // Ordenação: ativos primeiro, depois por hora de entrada (mais recente no topo)
+    resultado = [...resultado].sort((a, b) => {
+      // Primeiro critério: ativos (sem horaSaida) vêm antes
+      const aAtivo = !a.horaSaida;
+      const bAtivo = !b.horaSaida;
+      if (aAtivo && !bAtivo) return -1;
+      if (!aAtivo && bAtivo) return 1;
+
+      // Segundo critério: mais recente primeiro (por horaEntrada)
+      return (
+        new Date(b.horaEntrada).getTime() - new Date(a.horaEntrada).getTime()
+      );
+    });
 
     return resultado;
   }, [estacionamentos, debouncedSearchTerm, filtroStatus]);

@@ -20,6 +20,18 @@ import type { Estacionamento } from "../../types/estacionamento";
 import type { Veiculo } from "../../types/veiculo";
 import { ConfirmarFinalizarModal } from "./ConfirmarFinalizarModal";
 
+const PRECO_POR_HORA = 10; // R$ 10,00 por hora
+
+const calcularValor = (horaEntrada: string, horaSaida: string): number => {
+  const entrada = new Date(horaEntrada);
+  const saida = new Date(horaSaida);
+  const diffMs = saida.getTime() - entrada.getTime();
+  const diffHoras = diffMs / (1000 * 60 * 60);
+  // Mínimo de 1 hora, arredondando para cima
+  const horasCobranca = Math.max(1, Math.ceil(diffHoras));
+  return horasCobranca * PRECO_POR_HORA;
+};
+
 interface CriarEstacionamentoModalProps {
   open: boolean;
   onClose: () => void;
@@ -41,6 +53,7 @@ export const CriarEstacionamentoModal: React.FC<
   const [estacionamentoAtivoId, setEstacionamentoAtivoId] = useState<
     number | null
   >(null);
+  const [horaEntradaAtivo, setHoraEntradaAtivo] = useState<string | null>(null);
   const [placaVeiculoAtivo, setPlacaVeiculoAtivo] = useState("");
   const [finalizando, setFinalizando] = useState(false);
 
@@ -59,6 +72,7 @@ export const CriarEstacionamentoModal: React.FC<
     setErrors({});
     setConfirmarModal(false);
     setEstacionamentoAtivoId(null);
+    setHoraEntradaAtivo(null);
     setPlacaVeiculoAtivo("");
     onClose();
   }, [onClose]);
@@ -80,6 +94,7 @@ export const CriarEstacionamentoModal: React.FC<
       const apiMessage = error.response?.data?.message;
       const estacionamentoAtivoIdResp =
         error.response?.data?.estacionamentoAtivoId;
+      const horaEntradaResp = error.response?.data?.horaEntrada;
 
       if (
         apiMessage?.includes("já está estacionado") &&
@@ -88,6 +103,7 @@ export const CriarEstacionamentoModal: React.FC<
         const veiculoSelecionado = veiculos.find((v) => v.id === veiculoId);
         setPlacaVeiculoAtivo(veiculoSelecionado?.placa || "");
         setEstacionamentoAtivoId(estacionamentoAtivoIdResp);
+        setHoraEntradaAtivo(horaEntradaResp || null);
         setConfirmarModal(true);
       } else {
         setErrors({
@@ -101,15 +117,16 @@ export const CriarEstacionamentoModal: React.FC<
   }, [veiculoId, veiculos, onSuccess, handleClose]);
 
   const handleConfirmarFinalizar = useCallback(async () => {
-    if (!estacionamentoAtivoId) return;
+    if (!estacionamentoAtivoId || !horaEntradaAtivo) return;
 
     setFinalizando(true);
     try {
-      // Finalizar estacionamento anterior
+      // Finalizar estacionamento anterior com valor calculado
       const now = new Date().toISOString();
+      const valorCalculado = calcularValor(horaEntradaAtivo, now);
       await updateEstacionamento(estacionamentoAtivoId, {
         horaSaida: now,
-        valor: 10, // Valor mínimo
+        valor: valorCalculado,
       });
 
       if (onEstacionamentoFinalizado) {
@@ -131,7 +148,12 @@ export const CriarEstacionamentoModal: React.FC<
     } finally {
       setFinalizando(false);
     }
-  }, [estacionamentoAtivoId, onEstacionamentoFinalizado, registrarNovaEntrada]);
+  }, [
+    estacionamentoAtivoId,
+    horaEntradaAtivo,
+    onEstacionamentoFinalizado,
+    registrarNovaEntrada,
+  ]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

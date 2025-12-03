@@ -14,11 +14,13 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getVeiculos, deleteVeiculo } from "../services/veiculoService";
 import VeiculosTable from "../components/veiculos/VeiculosTable";
 import { CriarVeiculoModal } from "../components/veiculos/CriarVeiculoModal";
 import { EditarVeiculoModal } from "../components/veiculos/EditarVeiculoModal";
+import { ConfirmarExclusaoVeiculoModal } from "../components/veiculos/ConfirmarExclusaoVeiculoModal";
 import { useDebounce } from "../hooks/useDebounce";
 import type { Veiculo } from "../types/veiculo";
 
@@ -27,6 +29,26 @@ type SnackbarState = {
   message: string;
   severity: "success" | "error" | "info" | "warning";
 };
+
+interface EstacionamentoVinculado {
+  id: number;
+  horaEntrada: string;
+  horaSaida: string | null;
+  valor: number | null;
+}
+
+interface VeiculoInfo {
+  id: number;
+  placa: string;
+  modelo: string;
+  cor: string;
+  clienteNome: string;
+}
+
+interface ConfirmacaoExclusao {
+  veiculo: VeiculoInfo;
+  estacionamentos: EstacionamentoVinculado[];
+}
 
 const VeiculosPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,6 +63,9 @@ const VeiculosPage: React.FC = () => {
   });
   const [veiculoEditando, setVeiculoEditando] = useState<Veiculo | null>(null);
   const [abrirModalCriar, setAbrirModalCriar] = useState(false);
+  const [confirmacaoExclusao, setConfirmacaoExclusao] =
+    useState<ConfirmacaoExclusao | null>(null);
+  const [loadingExclusao, setLoadingExclusao] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -76,16 +101,75 @@ const VeiculosPage: React.FC = () => {
         severity: "success",
       });
     } catch (error) {
-      console.error("Erro ao deletar veículo:", error);
-      setSnackbar({
-        open: true,
-        message: "Erro ao deletar veículo.",
-        severity: "error",
-      });
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        const { veiculo, estacionamentos } = error.response.data;
+        setConfirmacaoExclusao({ veiculo, estacionamentos });
+      } else {
+        console.error("Erro ao deletar veículo:", error);
+        setSnackbar({
+          open: true,
+          message: "Erro ao deletar veículo.",
+          severity: "error",
+        });
+      }
     } finally {
       setDeletingId(null);
     }
   }, []);
+
+  const handleConfirmDeleteAll = useCallback(async () => {
+    if (!confirmacaoExclusao) return;
+
+    setLoadingExclusao(true);
+    try {
+      await deleteVeiculo(confirmacaoExclusao.veiculo.id, false);
+      setVeiculos((prev) =>
+        prev.filter((v) => v.id !== confirmacaoExclusao.veiculo.id)
+      );
+      setSnackbar({
+        open: true,
+        message: `Veículo e ${confirmacaoExclusao.estacionamentos.length} estacionamento(s) removidos.`,
+        severity: "success",
+      });
+      setConfirmacaoExclusao(null);
+    } catch (error) {
+      console.error("Erro ao excluir veículo:", error);
+      setSnackbar({
+        open: true,
+        message: "Erro ao excluir veículo.",
+        severity: "error",
+      });
+    } finally {
+      setLoadingExclusao(false);
+    }
+  }, [confirmacaoExclusao]);
+
+  const handleConfirmKeepHistory = useCallback(async () => {
+    if (!confirmacaoExclusao) return;
+
+    setLoadingExclusao(true);
+    try {
+      await deleteVeiculo(confirmacaoExclusao.veiculo.id, true);
+      setVeiculos((prev) =>
+        prev.filter((v) => v.id !== confirmacaoExclusao.veiculo.id)
+      );
+      setSnackbar({
+        open: true,
+        message: `Veículo removido. Histórico de ${confirmacaoExclusao.estacionamentos.length} estacionamento(s) preservado.`,
+        severity: "success",
+      });
+      setConfirmacaoExclusao(null);
+    } catch (error) {
+      console.error("Erro ao excluir veículo mantendo histórico:", error);
+      setSnackbar({
+        open: true,
+        message: "Erro ao excluir veículo.",
+        severity: "error",
+      });
+    } finally {
+      setLoadingExclusao(false);
+    }
+  }, [confirmacaoExclusao]);
 
   const handleOpenEditModal = useCallback((veiculo: Veiculo) => {
     setVeiculoEditando(veiculo);
@@ -237,6 +321,16 @@ const VeiculosPage: React.FC = () => {
         open={abrirModalCriar}
         onClose={() => setAbrirModalCriar(false)}
         onSuccess={handleSucessoCriarVeiculo}
+      />
+
+      <ConfirmarExclusaoVeiculoModal
+        open={confirmacaoExclusao !== null}
+        veiculo={confirmacaoExclusao?.veiculo || null}
+        estacionamentos={confirmacaoExclusao?.estacionamentos || []}
+        loading={loadingExclusao}
+        onConfirmDeleteAll={handleConfirmDeleteAll}
+        onConfirmKeepHistory={handleConfirmKeepHistory}
+        onCancel={() => setConfirmacaoExclusao(null)}
       />
     </Box>
   );
