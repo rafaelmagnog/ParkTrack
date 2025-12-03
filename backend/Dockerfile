@@ -23,8 +23,8 @@ RUN npx prisma generate
 # Compila o TypeScript para JavaScript (modo produção)
 RUN npm run build
 
-# Expõe a porta padrão da aplicação
-EXPOSE 3333
+# Expõe a porta (Render usa PORT env var, padrão 10000)
+EXPOSE 10000
 
 # Comando padrão de inicialização
 CMD ["npm", "start"]
