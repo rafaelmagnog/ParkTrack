@@ -1,5 +1,11 @@
 import { Router } from "express";
-import veiculoController from "../controllers/veiculoController";
+import {
+  getAllVeiculos,
+  getVeiculoById,
+  createVeiculo,
+  updateVeiculo,
+  deleteVeiculo,
+} from "../controllers/veiculoController";
 import { validateBody, validateParams } from "../middlewares/validation";
 import {
   createVeiculoSchema,
@@ -54,8 +60,8 @@ const router = Router();
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-router.get("/", veiculoController.getAll);
-router.post("/", validateBody(createVeiculoSchema), veiculoController.create);
+router.get("/", getAllVeiculos);
+router.post("/", validateBody(createVeiculoSchema), createVeiculo);
 
 /**
  * @swagger
@@ -117,13 +123,13 @@ router.post("/", validateBody(createVeiculoSchema), veiculoController.create);
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-router.get("/:id", validateParams(idParamSchema), veiculoController.getOne);
+router.get("/:id", validateParams(idParamSchema), getVeiculoById);
 router.put(
   "/:id",
   validateParams(idParamSchema),
   validateBody(updateVeiculoSchema),
-  veiculoController.update
+  updateVeiculo
 );
-router.delete("/:id", validateParams(idParamSchema), veiculoController.remove);
+router.delete("/:id", validateParams(idParamSchema), deleteVeiculo);
 
 export default router;

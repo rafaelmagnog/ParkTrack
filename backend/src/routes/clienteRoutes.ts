@@ -1,5 +1,11 @@
 import { Router } from "express";
-import clienteController from "../controllers/clienteController";
+import {
+  getAllClientes,
+  getClienteById,
+  createCliente,
+  updateCliente,
+  deleteCliente,
+} from "../controllers/clienteController";
 import { validateBody, validateParams } from "../middlewares/validation";
 import {
   createClienteSchema,
@@ -54,8 +60,8 @@ const router = Router();
  *       409:
  *         $ref: '#/components/responses/Conflict'
  */
-router.get("/", clienteController.getAll);
-router.post("/", validateBody(createClienteSchema), clienteController.create);
+router.get("/", getAllClientes);
+router.post("/", validateBody(createClienteSchema), createCliente);
 
 /**
  * @swagger
@@ -117,13 +123,13 @@ router.post("/", validateBody(createClienteSchema), clienteController.create);
  *       500:
  *         $ref: '#/components/responses/InternalError'
  */
-router.get("/:id", validateParams(idParamSchema), clienteController.getOne);
+router.get("/:id", validateParams(idParamSchema), getClienteById);
 router.put(
   "/:id",
   validateParams(idParamSchema),
   validateBody(updateClienteSchema),
-  clienteController.update
+  updateCliente
 );
-router.delete("/:id", validateParams(idParamSchema), clienteController.remove);
+router.delete("/:id", validateParams(idParamSchema), deleteCliente);
 
 export default router;
