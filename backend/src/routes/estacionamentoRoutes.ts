@@ -1,5 +1,12 @@
 import { Router } from "express";
-import estacionamentoController from "../controllers/estacionamentoController";
+import {
+  getAllEstacionamentos,
+  getEstacionamentoDetalhado,
+  getEstacionamentoById,
+  createEstacionamento,
+  updateEstacionamento,
+  deleteEstacionamento,
+} from "../controllers/estacionamentoController";
 import { validateBody, validateParams } from "../middlewares/validation";
 import {
   createEstacionamentoSchema,
@@ -135,28 +142,20 @@ const router = Router();
  *         $ref: '#/components/responses/InternalError'
  */
 
-router.get("/", estacionamentoController.getAll);
-router.get("/detalhado", estacionamentoController.getDetailed);
+router.get("/", getAllEstacionamentos);
+router.get("/detalhado", getEstacionamentoDetalhado);
 router.post(
   "/",
   validateBody(createEstacionamentoSchema),
-  estacionamentoController.create
+  createEstacionamento
 );
-router.get(
-  "/:id",
-  validateParams(idParamSchema),
-  estacionamentoController.getOne
-);
+router.get("/:id", validateParams(idParamSchema), getEstacionamentoById);
 router.put(
   "/:id",
   validateParams(idParamSchema),
   validateBody(updateEstacionamentoSchema),
-  estacionamentoController.update
+  updateEstacionamento
 );
-router.delete(
-  "/:id",
-  validateParams(idParamSchema),
-  estacionamentoController.remove
-);
+router.delete("/:id", validateParams(idParamSchema), deleteEstacionamento);
 
 export default router;
