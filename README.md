@@ -484,32 +484,6 @@ model Estacionamento {
 
 ---
 
-### 📦 Deploy do Frontend (Vercel)
-
-1. Conecte o repositório ao Vercel
-2. Configure:
-   - **Root Directory:** `frontend`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-3. Adicione a variável de ambiente:
-   - `VITE_API_URL` = `https://parktrack-api.onrender.com`
-
----
-
-### 📦 Deploy do Backend (Render)
-
-1. Crie um **Web Service** no Render
-2. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install && npx prisma generate && npm run build`
-   - **Start Command:** `npx prisma migrate deploy && node dist/index.js`
-3. Adicione as variáveis de ambiente:
-   - `DATABASE_URL` = (sua URL do PostgreSQL)
-   - `PORT` = `10000`
-   - `NODE_ENV` = `production`
-
----
-
 ## 📜 Scripts Disponíveis
 
 ### Backend
