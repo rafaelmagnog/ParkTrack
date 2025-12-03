@@ -1,3 +1,10 @@
+/**
+ * Botão flutuante para alternar tema claro/escuro
+ *
+ * Fica fixo na parte inferior central da tela.
+ * Exibe o modo atual e ícone correspondente.
+ */
+
 import React from "react";
 import { Tooltip, Paper, Typography } from "@mui/material";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
@@ -38,6 +45,7 @@ const ThemeToggleFloating: React.FC<ThemeToggleFloatingProps> = ({
         <Typography variant="caption" color="text.secondary">
           {mode === "dark" ? "Escuro" : "Claro"}
         </Typography>
+        {/* Ícone muda conforme o tema atual */}
         {mode === "dark" ? (
           <Brightness7 fontSize="small" color="action" />
         ) : (

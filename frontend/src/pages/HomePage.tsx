@@ -1,3 +1,10 @@
+/**
+ * Página inicial do ParkTrack
+ *
+ * Exibe o menu principal com acesso às três áreas do sistema:
+ * Clientes, Veículos e Estacionamento.
+ */
+
 import { Box, Button, Paper, Typography, Avatar, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -10,6 +17,7 @@ const AVATAR_SIZE = 80;
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
+  // Definição dos itens do menu principal
   const menuItems = [
     {
       title: "Clientes",
@@ -44,6 +52,7 @@ const HomePage: React.FC = () => {
       p={3}
     >
       <Paper elevation={3} sx={{ p: 4, width: "100%", maxWidth: 600 }}>
+        {/* Cabeçalho com logo e título */}
         <Box textAlign="center" mb={4}>
           <Box display="flex" justifyContent="center" mb={2}>
             <Avatar
@@ -64,6 +73,7 @@ const HomePage: React.FC = () => {
           </Typography>
         </Box>
 
+        {/* Grid de botões de navegação */}
         <Grid container spacing={2}>
           {menuItems.map((item) => (
             <Grid size={12} key={item.path}>

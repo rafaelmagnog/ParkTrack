@@ -1,3 +1,7 @@
+/**
+ * Modal de confirmação de exclusão
+ */
+
 import { useRef, useEffect } from "react";
 import {
   Dialog,
@@ -27,15 +31,17 @@ export const ConfirmarExclusaoModal: React.FC<ConfirmarExclusaoModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  // Mantém o último valor válido da mensagem para evitar "undefined" durante animação
+  // Guarda a última mensagem válida - resolve problema do undefined no fechamento
   const lastMensagemRef = useRef(mensagem);
 
+  // Atualiza ref só quando a mensagem é válida
   useEffect(() => {
     if (mensagem && !mensagem.includes("undefined")) {
       lastMensagemRef.current = mensagem;
     }
   }, [mensagem]);
 
+  // Usa a mensagem atual ou a última válida se a atual for undefined
   const displayMensagem = mensagem?.includes("undefined")
     ? lastMensagemRef.current
     : mensagem;

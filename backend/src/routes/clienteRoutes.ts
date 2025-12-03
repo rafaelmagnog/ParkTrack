@@ -1,3 +1,10 @@
+/**
+ * Rotas da API de Clientes
+ *
+ * Define os endpoints REST para CRUD de clientes.
+ * Inclui validação de dados via middlewares e documentação Swagger.
+ */
+
 import { Router } from "express";
 import {
   getAllClientes,

@@ -1,3 +1,11 @@
+/**
+ * Página de gerenciamento de Clientes
+ *
+ * Permite listar, buscar, criar, editar e excluir clientes.
+ * A exclusão tem tratamento especial quando há veículos vinculados,
+ * permitindo manter ou excluir o histórico de estacionamentos.
+ */
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,

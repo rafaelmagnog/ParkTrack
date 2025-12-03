@@ -1,3 +1,11 @@
+/**
+ * Página de gerenciamento de Veículos
+ *
+ * Permite listar, buscar, criar, editar e excluir veículos.
+ * A exclusão trata o caso de veículos com histórico de estacionamentos,
+ * oferecendo a opção de manter ou excluir os registros.
+ */
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,

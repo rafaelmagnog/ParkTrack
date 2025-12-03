@@ -1,3 +1,10 @@
+/**
+ * Rotas da API de Estacionamentos
+ *
+ * Define os endpoints REST para gerenciar registros de entrada/saída.
+ * Inclui endpoint especial "detalhado" para listagem enriquecida.
+ */
+
 import { Router } from "express";
 import {
   getAllEstacionamentos,

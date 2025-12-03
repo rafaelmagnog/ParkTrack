@@ -1,3 +1,10 @@
+/**
+ * Rotas da API de Veículos
+ *
+ * Define os endpoints REST para CRUD de veículos.
+ * Inclui validação de dados e documentação Swagger.
+ */
+
 import { Router } from "express";
 import {
   getAllVeiculos,

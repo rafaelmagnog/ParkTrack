@@ -1,3 +1,11 @@
+/**
+ * Página de gerenciamento de Estacionamentos
+ *
+ * Exibe a lista de registros de entrada/saída de veículos.
+ * Permite filtrar por status (ativos/finalizados), registrar
+ * novas entradas e finalizar estacionamentos calculando o valor.
+ */
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
